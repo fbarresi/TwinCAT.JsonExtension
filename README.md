@@ -25,7 +25,7 @@ END_STRUCT
 END_TYPE
 ```
 
-into this (and back) **recursively and absolutly type indipendent**:
+into this (and back) **recursively** and absolutely **type-independent**:
 
 ```javascript
 {
@@ -45,3 +45,4 @@ await client.WriteJson("GVL.JsonDutVariable", json);
 ```
 
 
+Have fun using this simple package and don't forget to star this project! 
