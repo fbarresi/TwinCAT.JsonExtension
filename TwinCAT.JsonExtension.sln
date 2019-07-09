@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwinCAT.JsonExtension", "TwinCAT.JsonExtension\TwinCAT.JsonExtension.csproj", "{781232EA-EB55-49AE-BFA2-1926F590873D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{781232EA-EB55-49AE-BFA2-1926F590873D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{781232EA-EB55-49AE-BFA2-1926F590873D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{781232EA-EB55-49AE-BFA2-1926F590873D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{781232EA-EB55-49AE-BFA2-1926F590873D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D7CF3BB3-3B60-4C8D-B0F9-655F7A5346C2}
+	EndGlobalSection
+EndGlobal
