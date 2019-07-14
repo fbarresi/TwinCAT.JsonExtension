@@ -45,4 +45,9 @@ await client.WriteJson("GVL.JsonDutVariable", json);
 ```
 
 
-Have fun using this simple package and don't forget to star this project! 
+Have fun using this simple package and don't forget to **star this project**!
+
+## Referenced projects
+Whould you like to see the power of **TwinCAT.JsonExtension** in action?
+
+Then checkout [BeckhoffHttpClient](https://github.com/fbarresi/BeckhoffHttpClient), an _unofficial_ TwinCAT function for HTTP requests.
