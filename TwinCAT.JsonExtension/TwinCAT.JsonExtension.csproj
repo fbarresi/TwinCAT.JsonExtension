@@ -13,6 +13,7 @@
     <Company />
     <Version>1.0.0</Version>
     <PackageIconUrl>https://raw.githubusercontent.com/fbarresi/TwinCAT.JsonExtension/master/doc/images/logo.jpg</PackageIconUrl>
+    <Description>Convert TwinCAT variables to and from Json</Description>
   </PropertyGroup>
 
   <ItemGroup>
