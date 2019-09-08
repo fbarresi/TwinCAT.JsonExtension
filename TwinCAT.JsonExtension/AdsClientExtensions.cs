@@ -30,12 +30,12 @@ namespace TwinCAT.JsonExtension
             });
         }
 
-        public static Task WriteJson(this TcAdsClient client, string variablePath, JObject obj)
+        public static Task WriteJson(this TcAdsClient client, string variablePath, JObject obj, bool force = false)
         {
-            return WriteRecursive(client, variablePath, obj, string.Empty);
+            return WriteRecursive(client, variablePath, obj, string.Empty, force:force);
         }
 
-        private static async Task WriteRecursive(this TcAdsClient client, string variablePath, JObject parent, string jsonName)
+        private static async Task WriteRecursive(this TcAdsClient client, string variablePath, JObject parent, string jsonName, bool force = false)
         {
             var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
             var dataType = symbolInfo.DataType;
@@ -60,7 +60,7 @@ namespace TwinCAT.JsonExtension
                     {
                         foreach (var subItem in dataType.SubItems)
                         {
-                            if (HasJsonName(subItem))
+                            if (HasJsonName(subItem, force))
                             {
                                 await WriteRecursive(client, variablePath + "." + subItem.SubItemName, parent, string.IsNullOrEmpty(jsonName) ? GetJsonName(subItem) : jsonName + "." + GetJsonName(subItem));
                             }
@@ -74,12 +74,12 @@ namespace TwinCAT.JsonExtension
             }
 
         }
-        public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath)
+        public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath, bool force = false)
         {
-            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath)));
+            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), force:force));
         }
 
-        private static JObject ReadRecursive(TcAdsClient client, string variablePath, JObject parent, string jsonName, bool isChild = false)
+        private static JObject ReadRecursive(TcAdsClient client, string variablePath, JObject parent, string jsonName, bool isChild = false, bool force = false)
         {
             var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
             var dataType = symbolInfo.DataType;
@@ -111,7 +111,7 @@ namespace TwinCAT.JsonExtension
                         var child = new JObject();
                         foreach (var subItem in dataType.SubItems)
                         {
-                            if (HasJsonName(subItem))
+                            if (HasJsonName(subItem, force))
                             {
                                 ReadRecursive(client, variablePath + "." + subItem.SubItemName, isChild ? child : parent, GetJsonName(subItem), true);
                             }
@@ -142,8 +142,9 @@ namespace TwinCAT.JsonExtension
             return string.IsNullOrEmpty(jsonName) ? GetVaribleNameFromFullPath(dataType.SubItemName) : jsonName;
         }
 
-        private static bool HasJsonName(this ITcAdsSubItem subItem)
+        private static bool HasJsonName(this ITcAdsSubItem subItem, bool force = false)
         {
+            if (force) return true;
             return subItem.Attributes.Any(attribute => attribute.Name.Equals("json", StringComparison.InvariantCultureIgnoreCase));
         }
 
