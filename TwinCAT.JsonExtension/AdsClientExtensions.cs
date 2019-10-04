@@ -32,7 +32,7 @@ namespace TwinCAT.JsonExtension
 
         public static Task WriteJson(this TcAdsClient client, string variablePath, JObject obj, bool force = false)
         {
-            return WriteRecursive(client, variablePath, obj, string.Empty, force:force);
+            return WriteRecursive(client, variablePath, obj, string.Empty, force);
         }
 
         private static async Task WriteRecursive(this TcAdsClient client, string variablePath, JObject parent, string jsonName, bool force = false)
@@ -74,9 +74,10 @@ namespace TwinCAT.JsonExtension
             }
 
         }
+        
         public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath, bool force = false)
         {
-            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), force:force));
+            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), force));
         }
 
         private static JObject ReadRecursive(TcAdsClient client, string variablePath, JObject parent, string jsonName, bool isChild = false, bool force = false)
@@ -97,11 +98,10 @@ namespace TwinCAT.JsonExtension
                         for (int i = dataType.Dimensions.LowerBounds.First(); i <= dataType.Dimensions.UpperBounds.First(); i++)
                         {
                             var child = new JObject();
-                            ReadRecursive(client, variablePath + $"[{i}]", child, jsonName, false);
+                            ReadRecursive(client, variablePath + $"[{i}]", child, jsonName, false, force);
                             array.Add(child);
                         }
                         parent.Add(jsonName, array);
-
                     }
                 }
                 else if (dataType.ManagedType == null)
@@ -113,7 +113,7 @@ namespace TwinCAT.JsonExtension
                         {
                             if (HasJsonName(subItem, force))
                             {
-                                ReadRecursive(client, variablePath + "." + subItem.SubItemName, isChild ? child : parent, GetJsonName(subItem), true);
+                                ReadRecursive(client, variablePath + "." + subItem.SubItemName, isChild ? child : parent, GetJsonName(subItem), true, force);
                             }
                         }
                         if (isChild)
@@ -130,11 +130,10 @@ namespace TwinCAT.JsonExtension
             return parent;
         }
 
-        private static string GetVaribleNameFromFullPath(this string variablePath)
+        public static string GetVaribleNameFromFullPath(this string variablePath)
         {
             return variablePath.Split(new[] {'.'}, StringSplitOptions.RemoveEmptyEntries).Last();
         }
-
 
         private static string GetJsonName(ITcAdsSubItem dataType)
         {
