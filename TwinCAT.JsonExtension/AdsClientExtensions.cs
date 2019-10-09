@@ -77,7 +77,7 @@ namespace TwinCAT.JsonExtension
         
         public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath, bool force = false)
         {
-            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), force));
+            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), isChild:false, force:force));
         }
 
         private static JObject ReadRecursive(TcAdsClient client, string variablePath, JObject parent, string jsonName, bool isChild = false, bool force = false)
