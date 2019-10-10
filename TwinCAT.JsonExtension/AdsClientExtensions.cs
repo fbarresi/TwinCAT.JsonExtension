@@ -123,7 +123,7 @@ namespace TwinCAT.JsonExtension
                 else
                 {
                     var obj = client.ReadSymbol(symbolInfo);
-                    parent.Add(jsonName, new JValue(obj));
+                    parent.Add(jsonName, new JValue(obj.TryConvertToDotNetManagedType()));
                 }
             }
 
@@ -147,5 +147,49 @@ namespace TwinCAT.JsonExtension
             return subItem.Attributes.Any(attribute => attribute.Name.Equals("json", StringComparison.InvariantCultureIgnoreCase));
         }
 
+        /// <summary>
+        /// try to convert TwinCAT ManagedType to .Net ManagedType (e.g. DT => DateTime, TIME => TimeSpan, etc.)
+        /// If no conversion is possible return the unmodified object
+        /// </summary>
+        /// <param name="obj">object to convert</param>
+        /// <returns></returns>
+        public static object TryConvertToDotNetManagedType(this object obj)
+        {
+            return obj.TryConvertDateTime().TryConvertTimeSpan();
+        }
+
+        private static object TryConvertDateTime(this object obj)
+        {
+            bool conversion;
+            object newObject;
+            if (obj.GetType() == typeof(PlcOpen.DT))
+            {
+                conversion = PlcOpen.PlcOpenDTConverter.TryConvert(obj as PlcOpen.DT, typeof(DateTime), out newObject);
+                if (conversion) return newObject;
+            }
+            if (obj.GetType() == typeof(PlcOpen.DATE))
+            {
+                conversion = PlcOpen.PlcOpenDateConverter.TryConvert(obj as PlcOpen.DATE, typeof(DateTime), out newObject);
+                if (conversion) return newObject;
+            }
+            return obj;
+        }
+        private static object TryConvertTimeSpan(this object obj)
+        {
+            bool conversion;
+            object newObject;
+            if (obj.GetType() == typeof(PlcOpen.TIME))
+            {
+                conversion = PlcOpen.PlcOpenTimeConverter.TryConvert(obj as PlcOpen.TIME, typeof(TimeSpan), out newObject);
+                if (conversion) return newObject;
+            }
+            if (obj.GetType() == typeof(PlcOpen.LTIME))
+            {
+                conversion = PlcOpen.PlcOpenTimeConverter.TryConvert(obj as PlcOpen.LTIME, typeof(TimeSpan), out newObject);
+                if (conversion) return newObject;
+            }
+
+            return obj;
+        }
     }
 }
