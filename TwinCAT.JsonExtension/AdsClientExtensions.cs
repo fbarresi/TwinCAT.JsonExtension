@@ -32,7 +32,7 @@ namespace TwinCAT.JsonExtension
 
         public static Task WriteJson(this TcAdsClient client, string variablePath, JObject obj)
         {
-            return WriteRecursive(client, variablePath, obj, string.Empty, false);
+            return WriteJson(client, variablePath, obj, false);
         }
         
         public static Task WriteJson(this TcAdsClient client, string variablePath, JObject obj, bool force)
@@ -82,7 +82,7 @@ namespace TwinCAT.JsonExtension
         
         public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath)
         {
-            return ReadRecursive(client, variablePath, force:force);
+            return ReadRecursive(client, variablePath, false);
         }
         
         public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath, bool force)
