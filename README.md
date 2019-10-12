@@ -11,7 +11,7 @@ Bring the power of Json.Net to TwinCAT
 
 Tranform DUTs decorated with the _custom_ **Json-Attribute** like this:
 
-```
+```reStructuredText
 TYPE JsonDUT :
 STRUCT
 	{attribute 'json' := 'message'}
@@ -44,10 +44,10 @@ var json = await client.ReadJson("GVL.JsonDutVariable")
 await client.WriteJson("GVL.JsonDutVariable", json);
 ```
 
-
 Have fun using this simple package and don't forget to **star this project**!
 
 ## Referenced projects
+
 Whould you like to see the power of **TwinCAT.JsonExtension** in action?
 
 Then checkout [BeckhoffHttpClient](https://github.com/fbarresi/BeckhoffHttpClient), an _unofficial_ TwinCAT function for HTTP requests.
