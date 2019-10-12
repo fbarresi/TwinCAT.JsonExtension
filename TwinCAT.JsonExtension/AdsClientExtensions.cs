@@ -52,7 +52,9 @@ namespace TwinCAT.JsonExtension
                     for (int i = 0; i < elementCount; i++)
                     {
                         if (dataType.BaseType.ManagedType != null)
+                        {
                             await WriteAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i]).ConfigureAwait(false);
+                        }
                         else
                         {
                             await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", parent, jsonName + $"[{i}]").ConfigureAwait(false);
@@ -82,7 +84,7 @@ namespace TwinCAT.JsonExtension
         
         public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath)
         {
-            return ReadRecursive(client, variablePath, false);
+            return ReadJson(client, variablePath, false);
         }
         
         public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath, bool force)
