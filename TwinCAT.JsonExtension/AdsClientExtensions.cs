@@ -30,7 +30,12 @@ namespace TwinCAT.JsonExtension
             });
         }
 
-        public static Task WriteJson(this TcAdsClient client, string variablePath, JObject obj, bool force = false)
+        public static Task WriteJson(this TcAdsClient client, string variablePath, JObject obj)
+        {
+            return WriteRecursive(client, variablePath, obj, string.Empty, false);
+        }
+        
+        public static Task WriteJson(this TcAdsClient client, string variablePath, JObject obj, bool force)
         {
             return WriteRecursive(client, variablePath, obj, string.Empty, force);
         }
@@ -47,10 +52,10 @@ namespace TwinCAT.JsonExtension
                     for (int i = 0; i < elementCount; i++)
                     {
                         if (dataType.BaseType.ManagedType != null)
-                            await WriteAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i]);
+                            await WriteAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i]).ConfigureAwait(false);
                         else
                         {
-                            await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", parent, jsonName + $"[{i}]");
+                            await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", parent, jsonName + $"[{i}]").ConfigureAwait(false);
                         }
                     }
                 }
@@ -62,22 +67,27 @@ namespace TwinCAT.JsonExtension
                         {
                             if (HasJsonName(subItem, force))
                             {
-                                await WriteRecursive(client, variablePath + "." + subItem.SubItemName, parent, string.IsNullOrEmpty(jsonName) ? GetJsonName(subItem) : jsonName + "." + GetJsonName(subItem));
+                                await WriteRecursive(client, variablePath + "." + subItem.SubItemName, parent, string.IsNullOrEmpty(jsonName) ? GetJsonName(subItem) : jsonName + "." + GetJsonName(subItem)).ConfigureAwait(false);
                             }
                         }
                     }
                 }
                 else
                 {
-                    await WriteAsync(client, symbolInfo.Name, parent.SelectToken(jsonName));
+                    await WriteAsync(client, symbolInfo.Name, parent.SelectToken(jsonName)).ConfigureAwait(false);
                 }
             }
 
         }
         
-        public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath, bool force = false)
+        public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath)
         {
-            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), isChild:false, force:force));
+            return ReadRecursive(client, variablePath, force:force));
+        }
+        
+        public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath, bool force)
+        {
+            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), force:force));
         }
 
         private static JObject ReadRecursive(TcAdsClient client, string variablePath, JObject parent, string jsonName, bool isChild = false, bool force = false)
@@ -98,7 +108,7 @@ namespace TwinCAT.JsonExtension
                         for (int i = dataType.Dimensions.LowerBounds.First(); i <= dataType.Dimensions.UpperBounds.First(); i++)
                         {
                             var child = new JObject();
-                            ReadRecursive(client, variablePath + $"[{i}]", child, jsonName, false, force);
+                            ReadRecursive(client, variablePath + $"[{i}]", child, jsonName, force:force);
                             array.Add(child);
                         }
                         parent.Add(jsonName, array);
@@ -117,7 +127,9 @@ namespace TwinCAT.JsonExtension
                             }
                         }
                         if (isChild)
+                        {
                             parent.Add(jsonName, child);
+                        }
                     }
                 }
                 else
@@ -143,7 +155,10 @@ namespace TwinCAT.JsonExtension
 
         private static bool HasJsonName(this ITcAdsSubItem subItem, bool force = false)
         {
-            if (force) return true;
+            if (force)
+            {
+                return true;
+            }
             return subItem.Attributes.Any(attribute => attribute.Name.Equals("json", StringComparison.InvariantCultureIgnoreCase));
         }
 
@@ -165,12 +180,18 @@ namespace TwinCAT.JsonExtension
             if (obj.GetType() == typeof(PlcOpen.DT))
             {
                 conversion = PlcOpen.PlcOpenDTConverter.TryConvert(obj as PlcOpen.DT, typeof(DateTime), out newObject);
-                if (conversion) return newObject;
+                if (conversion)
+                {
+                    return newObject;
+                }
             }
             if (obj.GetType() == typeof(PlcOpen.DATE))
             {
                 conversion = PlcOpen.PlcOpenDateConverter.TryConvert(obj as PlcOpen.DATE, typeof(DateTime), out newObject);
-                if (conversion) return newObject;
+                if (conversion) 
+                {
+                    return newObject;
+                }
             }
             return obj;
         }
@@ -181,12 +202,18 @@ namespace TwinCAT.JsonExtension
             if (obj.GetType() == typeof(PlcOpen.TIME))
             {
                 conversion = PlcOpen.PlcOpenTimeConverter.TryConvert(obj as PlcOpen.TIME, typeof(TimeSpan), out newObject);
-                if (conversion) return newObject;
+                if (conversion)
+                {
+                    return newObject;
+                }
             }
             if (obj.GetType() == typeof(PlcOpen.LTIME))
             {
                 conversion = PlcOpen.PlcOpenTimeConverter.TryConvert(obj as PlcOpen.LTIME, typeof(TimeSpan), out newObject);
-                if (conversion) return newObject;
+                if (conversion)
+                {
+                    return newObject;
+                }
             }
 
             return obj;
