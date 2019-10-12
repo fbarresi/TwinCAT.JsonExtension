@@ -82,7 +82,7 @@ namespace TwinCAT.JsonExtension
         
         public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath)
         {
-            return ReadRecursive(client, variablePath, force:force));
+            return ReadRecursive(client, variablePath, force:force);
         }
         
         public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath, bool force)
