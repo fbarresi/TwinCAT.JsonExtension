@@ -9,7 +9,7 @@ namespace TwinCAT.JsonExtension
 {
     public static class AdsClientExtensions
     {
-        public static Task WriteAsync<T>(this TcAdsClient client, string variablePath, T value)
+        public static Task WriteAsync<T>(this IAdsSymbolicAccess client, string variablePath, T value)
         {
             return Task.Run(() =>
             {
@@ -20,7 +20,7 @@ namespace TwinCAT.JsonExtension
             });
         }
 
-        public static Task<T> ReadAsync<T>(this TcAdsClient client, string variablePath)
+        public static Task<T> ReadAsync<T>(this IAdsSymbolicAccess client, string variablePath)
         {
             return Task.Run(() =>
             {
@@ -30,17 +30,17 @@ namespace TwinCAT.JsonExtension
             });
         }
 
-        public static Task WriteJson(this TcAdsClient client, string variablePath, JObject obj)
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JObject obj)
         {
             return WriteJson(client, variablePath, obj, false);
         }
         
-        public static Task WriteJson(this TcAdsClient client, string variablePath, JObject obj, bool force)
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JObject obj, bool force)
         {
             return WriteRecursive(client, variablePath, obj, string.Empty, force);
         }
 
-        private static async Task WriteRecursive(this TcAdsClient client, string variablePath, JObject parent, string jsonName, bool force = false)
+        private static async Task WriteRecursive(this IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool force = false)
         {
             var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
             var dataType = symbolInfo.DataType;
@@ -82,17 +82,17 @@ namespace TwinCAT.JsonExtension
 
         }
         
-        public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath)
+        public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath)
         {
             return ReadJson(client, variablePath, false);
         }
         
-        public static Task<JObject> ReadJson(this TcAdsClient client, string variablePath, bool force)
+        public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, bool force)
         {
             return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), force:force));
         }
 
-        private static JObject ReadRecursive(TcAdsClient client, string variablePath, JObject parent, string jsonName, bool isChild = false, bool force = false)
+        private static JObject ReadRecursive(IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool isChild = false, bool force = false)
         {
             var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
             var dataType = symbolInfo.DataType;
