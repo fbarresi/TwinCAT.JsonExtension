@@ -10,61 +10,62 @@ namespace TwinCAT.JsonExtension.Tests
 {
     public class TestReadWriteOperations
     {
-        [Test]
-        public async Task ReadSymbolWithDifferentType()
+        private Mock<IAdsSymbolicAccess> GetClientMock<T>(ITcAdsSymbol symbol, T value)
         {
             var clientMock = new Mock<IAdsSymbolicAccess>();
 
-            var value = 10;
             clientMock.Setup(client => client.ReadSymbol(It.IsAny<ITcAdsSymbol>()))
                 .Returns(value);
-            var symbol = new DebugSymbol();
+
             clientMock.Setup(client => client.ReadSymbolInfo(It.IsAny<string>()))
                 .Returns(symbol);
 
+            return clientMock;
+        }
+
+        [Test]
+        public async Task ReadSymbolWithDifferentType()
+        {
+            int value = 10;
+            var symbol = new DebugSymbol();
             var variableName = "test.object";
+
+            var clientMock = GetClientMock(symbol, value);
+
             var readVariable = await clientMock.Object.ReadAsync<string>(variableName);
 
             clientMock.Verify(client => client.ReadSymbolInfo(variableName), Times.Once);
             clientMock.Verify(client => client.ReadSymbol(symbol), Times.Once);
-            
             readVariable.ShouldBe(value.ToString());
         }
 
         [Test]
         public async Task ReadSymbol()
         {
-            var clientMock = new Mock<IAdsSymbolicAccess>();
-
-            int value = 10;
-            clientMock.Setup(client => client.ReadSymbol(It.IsAny<ITcAdsSymbol>()))
-                .Returns(value);
+            int value = 11;
             var symbol = new DebugSymbol();
-            clientMock.Setup(client => client.ReadSymbolInfo(It.IsAny<string>()))
-                .Returns(symbol);
+            var variableName = "test.object2";
 
-            var variableName = "test.object";
+            var clientMock = GetClientMock(symbol, value);
+            
             var readVariable = await clientMock.Object.ReadAsync<int>(variableName);
 
             clientMock.Verify(client => client.ReadSymbolInfo(variableName), Times.Once);
             clientMock.Verify(client => client.ReadSymbol(symbol), Times.Once);
-
             readVariable.ShouldBe(value);
         }
 
         [Test]
         public async Task WriteSymbol()
         {
-            var clientMock = new Mock<IAdsSymbolicAccess>();
-
             var symbol = new DebugSymbol();
             var targetType = typeof(int);
-            symbol.DataType = new DebugType(){ManagedType = targetType};
-            
-            clientMock.Setup(client => client.ReadSymbolInfo(It.IsAny<string>()))
-                .Returns(symbol);
-            var variableName = "test.object";
-            int value = 10;
+            symbol.DataType = new DebugType { ManagedType = targetType };
+            int value = 12;
+            var variableName = "test.object3";
+
+            var clientMock = GetClientMock(symbol, value);
+
             await clientMock.Object.WriteAsync(variableName, value);
 
             clientMock.Verify(client => client.ReadSymbolInfo(variableName), Times.Once);
@@ -74,16 +75,14 @@ namespace TwinCAT.JsonExtension.Tests
         [Test]
         public async Task WriteSymbolWithDifferentType()
         {
-            var clientMock = new Mock<IAdsSymbolicAccess>();
-
             var symbol = new DebugSymbol();
             var targetType = typeof(string);
             symbol.DataType = new DebugType { ManagedType = targetType };
+            var variableName = "test.object4";
+            int value = 14;
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.IsAny<string>()))
-                .Returns(symbol);
-            var variableName = "test.object";
-            int value = 10;
+            var clientMock = GetClientMock(symbol, value);
+
             await clientMock.Object.WriteAsync(variableName, value);
 
             clientMock.Verify(client => client.ReadSymbolInfo(variableName), Times.Once);
