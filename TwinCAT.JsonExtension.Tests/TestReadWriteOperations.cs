@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using Shouldly;
 using TwinCAT.Ads;
+using Xunit;
 
 namespace TwinCAT.JsonExtension.Tests
 {
@@ -23,7 +24,7 @@ namespace TwinCAT.JsonExtension.Tests
             return clientMock;
         }
 
-        [Test]
+        [Fact]
         public async Task ReadSymbolWithDifferentType()
         {
             int value = 10;
@@ -39,7 +40,7 @@ namespace TwinCAT.JsonExtension.Tests
             readVariable.ShouldBe(value.ToString());
         }
 
-        [Test]
+        [Fact]
         public async Task ReadSymbol()
         {
             int value = 11;
@@ -55,7 +56,7 @@ namespace TwinCAT.JsonExtension.Tests
             readVariable.ShouldBe(value);
         }
 
-        [Test]
+        [Fact]
         public async Task WriteSymbol()
         {
             var symbol = new DebugSymbol();
@@ -72,7 +73,7 @@ namespace TwinCAT.JsonExtension.Tests
             clientMock.Verify(client => client.WriteSymbol(symbol, value), Times.Once);
         }
 
-        [Test]
+        [Fact]
         public async Task WriteSymbolWithDifferentType()
         {
             var symbol = new DebugSymbol();
