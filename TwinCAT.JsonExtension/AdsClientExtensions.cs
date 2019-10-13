@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TwinCAT.Ads;
+using TwinCAT.PlcOpen;
 using TwinCAT.TypeSystem;
 
 namespace TwinCAT.JsonExtension
@@ -179,42 +180,59 @@ namespace TwinCAT.JsonExtension
         {
             bool conversion;
             object newObject;
-            if (obj.GetType() == typeof(PlcOpen.DT))
+            switch (obj)
             {
-                conversion = PlcOpen.PlcOpenDTConverter.TryConvert(obj as PlcOpen.DT, typeof(DateTime), out newObject);
-                if (conversion)
+                case DT dt:
                 {
-                    return newObject;
+                    conversion = PlcOpenDTConverter.TryConvert(dt, typeof(DateTime), out newObject);
+                    if (conversion)
+                    {
+                        return newObject;
+                    }
+
+                    break;
+                }
+
+                case DATE date:
+                {
+                    conversion = PlcOpenDateConverter.TryConvert(date, typeof(DateTime), out newObject);
+                    if (conversion) 
+                    {
+                        return newObject;
+                    }
+
+                    break;
                 }
             }
-            if (obj.GetType() == typeof(PlcOpen.DATE))
-            {
-                conversion = PlcOpen.PlcOpenDateConverter.TryConvert(obj as PlcOpen.DATE, typeof(DateTime), out newObject);
-                if (conversion) 
-                {
-                    return newObject;
-                }
-            }
+
             return obj;
         }
         private static object TryConvertTimeSpan(this object obj)
         {
             bool conversion;
             object newObject;
-            if (obj.GetType() == typeof(PlcOpen.TIME))
+            switch (obj)
             {
-                conversion = PlcOpen.PlcOpenTimeConverter.TryConvert(obj as PlcOpen.TIME, typeof(TimeSpan), out newObject);
-                if (conversion)
+                case TIME time:
                 {
-                    return newObject;
+                    conversion = PlcOpenTimeConverter.TryConvert(time, typeof(TimeSpan), out newObject);
+                    if (conversion)
+                    {
+                        return newObject;
+                    }
+
+                    break;
                 }
-            }
-            if (obj.GetType() == typeof(PlcOpen.LTIME))
-            {
-                conversion = PlcOpen.PlcOpenTimeConverter.TryConvert(obj as PlcOpen.LTIME, typeof(TimeSpan), out newObject);
-                if (conversion)
+
+                case LTIME ltime:
                 {
-                    return newObject;
+                    conversion = PlcOpenTimeConverter.TryConvert(ltime, typeof(TimeSpan), out newObject);
+                    if (conversion)
+                    {
+                        return newObject;
+                    }
+
+                    break;
                 }
             }
 
