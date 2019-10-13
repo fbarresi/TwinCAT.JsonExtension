@@ -10,11 +10,6 @@ namespace TwinCAT.JsonExtension.Tests
 {
     public class TestReadWriteOperations
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
         [Test]
         public async Task ReadSymbolWithDifferentType()
         {
@@ -83,7 +78,7 @@ namespace TwinCAT.JsonExtension.Tests
 
             var symbol = new DebugSymbol();
             var targetType = typeof(string);
-            symbol.DataType = new DebugType() { ManagedType = targetType };
+            symbol.DataType = new DebugType { ManagedType = targetType };
 
             clientMock.Setup(client => client.ReadSymbolInfo(It.IsAny<string>()))
                 .Returns(symbol);

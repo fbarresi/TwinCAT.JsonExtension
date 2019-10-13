@@ -35,7 +35,7 @@ namespace TwinCAT.JsonExtension.Tests
         public int ByteSize { get; set;}
         public bool IsRecursive(IEnumerable<ITcAdsSymbol5> parents)
         {
-            throw new System.NotImplementedException();
+            return IsStatic;
         }
 
         public ITcAdsDataType DataType { get; set;}

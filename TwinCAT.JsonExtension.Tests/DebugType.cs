@@ -26,7 +26,7 @@ namespace TwinCAT.JsonExtension.Tests
         public string Comment { get; set;}
         public IDataType ResolveType(DataTypeResolveStrategy type)
         {
-            throw new NotImplementedException();
+            return EnumInfos as IDataType;
         }
 
         public AdsDatatypeId DataTypeId { get; set;}

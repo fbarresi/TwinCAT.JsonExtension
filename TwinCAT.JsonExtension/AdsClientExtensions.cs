@@ -203,6 +203,8 @@ namespace TwinCAT.JsonExtension
 
                     break;
                 }
+                default:
+                    break;
             }
 
             return obj;
@@ -234,6 +236,8 @@ namespace TwinCAT.JsonExtension
 
                     break;
                 }
+                default:
+                    break;
             }
 
             return obj;
