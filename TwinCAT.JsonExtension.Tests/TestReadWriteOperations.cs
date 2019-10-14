@@ -13,7 +13,7 @@ namespace TwinCAT.JsonExtension.Tests
 {
     public class TestReadWriteOperations
     {
-        private Mock<IAdsSymbolicAccess> GetClientMock<T>(ITcAdsSymbol symbol, T value)
+        public static Mock<IAdsSymbolicAccess> GetClientMock<T>(ITcAdsSymbol symbol, T value)
         {
             var clientMock = new Mock<IAdsSymbolicAccess>();
 
