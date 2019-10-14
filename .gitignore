@@ -330,3 +330,4 @@ ASALocalRun/
 .mfractor/
 
 run_tests_and_coverage.bat
+coverage/
