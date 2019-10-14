@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using Shouldly;
 using TwinCAT.Ads;
+using TwinCAT.TypeSystem;
 using Xunit;
 
 namespace TwinCAT.JsonExtension.Tests
@@ -22,6 +24,47 @@ namespace TwinCAT.JsonExtension.Tests
                 .Returns(symbol);
 
             return clientMock;
+        }
+
+
+        [Fact]
+        public async Task HasJsonNameForce()
+        {
+            var item = new DebugSubItem();
+            var jsonName = item.HasJsonName(true);
+            jsonName.ShouldBe(true);
+        }
+
+        [Fact]
+        public async Task HasEmptyJsonName()
+        {
+            var item = new DebugSubItem(){Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>()))};
+            var jsonName = item.HasJsonName(false);
+            jsonName.ShouldBe(false);
+        }
+
+        [Fact]
+        public async Task HasJsonName()
+        {
+            var item = new DebugSubItem() { Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>(){new DebugAttribute("JsOn", "json_name")})) };
+            var jsonName = item.HasJsonName(false);
+            jsonName.ShouldBe(true);
+        }
+
+        [Fact]
+        public async Task ReadJsonName()
+        {
+            var item = new DebugSubItem() { Name = "test", Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>() { new DebugAttribute("JsOn", "json_name") })) };
+            var jsonName = item.GetJsonName();
+            jsonName.ShouldBe("json_name");
+        }
+
+        [Fact]
+        public async Task ReadEmptyJsonName()
+        {
+            var item = new DebugSubItem() { SubItemName = "test", Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>())) };
+            var jsonName = item.GetJsonName();
+            jsonName.ShouldBe("test");
         }
 
         [Fact]
