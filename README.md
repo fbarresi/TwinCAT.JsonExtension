@@ -5,6 +5,7 @@ TwinCAT variables to and from json
 
 [![Build status](https://ci.appveyor.com/api/projects/status/4ggo35buwmno05u2?svg=true)](https://ci.appveyor.com/project/fbarresi/twincat-jsonextension)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6286aa6bb6f2402fa4f7553d749a5a8a)](https://www.codacy.com/manual/fbarresi/TwinCAT.JsonExtension?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fbarresi/TwinCAT.JsonExtension&amp;utm_campaign=Badge_Grade)
+[![codecov](https://codecov.io/gh/fbarresi/TwinCAT.JsonExtension/branch/master/graph/badge.svg)](https://codecov.io/gh/fbarresi/TwinCAT.JsonExtension)
 ![Licence](https://img.shields.io/github/license/fbarresi/twincat.jsonextension.svg)
 [![Nuget Version](https://img.shields.io/nuget/v/TwinCAT.JsonExtension.svg)](https://www.nuget.org/packages/TwinCAT.JsonExtension/)
 
