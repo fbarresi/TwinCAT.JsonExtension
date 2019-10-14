@@ -80,7 +80,6 @@ namespace TwinCAT.JsonExtension
                     await WriteAsync(client, symbolInfo.Name, parent.SelectToken(jsonName)).ConfigureAwait(false);
                 }
             }
-
         }
         
         public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath)
@@ -150,13 +149,13 @@ namespace TwinCAT.JsonExtension
             return variablePath.Split(new[] {'.'}, StringSplitOptions.RemoveEmptyEntries).Last();
         }
 
-        private static string GetJsonName(ITcAdsSubItem dataType)
+        public static string GetJsonName(this ITcAdsSubItem dataType)
         {
             var jsonName = dataType.Attributes.FirstOrDefault(attribute => attribute.Name.Equals("json", StringComparison.InvariantCultureIgnoreCase))?.Value;
             return string.IsNullOrEmpty(jsonName) ? GetVaribleNameFromFullPath(dataType.SubItemName) : jsonName;
         }
 
-        private static bool HasJsonName(this ITcAdsSubItem subItem, bool force = false)
+        public static bool HasJsonName(this ITcAdsSubItem subItem, bool force)
         {
             if (force)
             {
@@ -176,7 +175,7 @@ namespace TwinCAT.JsonExtension
             return obj.TryConvertDateTime().TryConvertTimeSpan();
         }
 
-        private static object TryConvertDateTime(this object obj)
+        public static object TryConvertDateTime(this object obj)
         {
             bool conversion;
             object newObject;
@@ -209,7 +208,7 @@ namespace TwinCAT.JsonExtension
 
             return obj;
         }
-        private static object TryConvertTimeSpan(this object obj)
+        public static object TryConvertTimeSpan(this object obj)
         {
             bool conversion;
             object newObject;
