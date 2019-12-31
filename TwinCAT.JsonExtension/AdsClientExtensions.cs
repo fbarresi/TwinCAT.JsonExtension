@@ -31,6 +31,16 @@ namespace TwinCAT.JsonExtension
             });
         }
 
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JArray array)
+        {
+            return WriteJson(client, variablePath, array, false);
+        }
+        
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force)
+        {
+            return WriteArray(client, variablePath, array, force);
+        }
+        
         public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JObject obj)
         {
             return WriteJson(client, variablePath, obj, false);
@@ -41,6 +51,27 @@ namespace TwinCAT.JsonExtension
             return WriteRecursive(client, variablePath, obj, string.Empty, force);
         }
 
+        private static async Task WriteArray(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force = false)
+        {
+            var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
+            var dataType = symbolInfo.DataType;
+
+            if (dataType.Category != DataTypeCategory.Array) throw new InvalidOperationException($"Type of plc variable {variablePath} must be an array");
+            
+            var elementCount = array.Count < dataType.Dimensions.ElementCount ? array.Count : dataType.Dimensions.ElementCount;
+            for (int i = 0; i < elementCount; i++)
+            {
+                if (dataType.BaseType.ManagedType != null)
+                {
+                    await WriteAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i]).ConfigureAwait(false);
+                }
+                else
+                {
+                    await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[1] as JObject, string.Empty, force).ConfigureAwait(false);
+                }
+            }
+        }
+        
         private static async Task WriteRecursive(this IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool force = false)
         {
             var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
@@ -58,7 +89,7 @@ namespace TwinCAT.JsonExtension
                         }
                         else
                         {
-                            await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", parent, jsonName + $"[{i}]").ConfigureAwait(false);
+                            await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", parent, jsonName + $"[{i}]", force).ConfigureAwait(false);
                         }
                     }
                 }
