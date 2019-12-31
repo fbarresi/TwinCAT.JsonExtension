@@ -57,7 +57,7 @@ namespace TwinCAT.JsonExtension
             var dataType = symbolInfo.DataType;
 
             if (dataType.Category != DataTypeCategory.Array) throw new InvalidOperationException($"Type of plc variable {variablePath} must be an array");
-            
+        
             var elementCount = array.Count < dataType.Dimensions.ElementCount ? array.Count : dataType.Dimensions.ElementCount;
             for (int i = 0; i < elementCount; i++)
             {
@@ -67,7 +67,7 @@ namespace TwinCAT.JsonExtension
                 }
                 else
                 {
-                    await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[1] as JObject, string.Empty, force).ConfigureAwait(false);
+                    await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i] as JObject, string.Empty, force).ConfigureAwait(false);
                 }
             }
         }
