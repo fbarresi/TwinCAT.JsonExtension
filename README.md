@@ -60,6 +60,6 @@ or
 
 ## Credits
 
-Special thanks to [JetBrais](https://www.jetbrains.com/?from=TwinCAT.JsonExtension) for supporting this open source project.
+Special thanks to [JetBrains](https://www.jetbrains.com/?from=TwinCAT.JsonExtension) for supporting this open source project.
 
 <a href="https://www.jetbrains.com/?from=TwinCAT.JsonExtension"><img height="200" src="https://www.jetbrains.com/company/brand/img/jetbrains_logo.png"></a>
