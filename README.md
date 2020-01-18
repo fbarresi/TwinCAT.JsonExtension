@@ -57,3 +57,9 @@ Then checkout [BeckhoffHttpClient](https://github.com/fbarresi/BeckhoffHttpClien
 or
 
 [TwincatAdsTool](https://github.com/fbarresi/TwincatAdsTool) your swiss knife for twincat development.
+
+## Credits
+
+Special thanks to [JetBrais](https://www.jetbrains.com/?from=TwinCAT.JsonExtension) for supporting this open source project.
+
+<a href="https://www.jetbrains.com/?from=TwinCAT.JsonExtension"><img height="200" src="https://www.jetbrains.com/company/brand/img/jetbrains_logo.png"></a>
