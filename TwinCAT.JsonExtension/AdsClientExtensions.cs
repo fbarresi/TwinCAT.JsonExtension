@@ -56,7 +56,10 @@ namespace TwinCAT.JsonExtension
             var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
             var dataType = symbolInfo.DataType;
 
-            if (dataType.Category != DataTypeCategory.Array) throw new InvalidOperationException($"Type of plc variable {variablePath} must be an array");
+            if (dataType.Category != DataTypeCategory.Array)
+            {
+                throw new InvalidOperationException($"Type of plc variable {variablePath} must be an array");
+            }
         
             var elementCount = array.Count < dataType.Dimensions.ElementCount ? array.Count : dataType.Dimensions.ElementCount;
             for (int i = 0; i < elementCount; i++)
