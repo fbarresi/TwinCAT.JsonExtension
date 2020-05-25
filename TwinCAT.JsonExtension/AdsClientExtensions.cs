@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TwinCAT.Ads;
@@ -12,46 +13,76 @@ namespace TwinCAT.JsonExtension
     {
         public static Task WriteAsync<T>(this IAdsSymbolicAccess client, string variablePath, T value)
         {
+            return WriteAsync(client, variablePath, value, CancellationToken.None);
+        }
+        
+        public static Task WriteAsync<T>(this IAdsSymbolicAccess client, string variablePath, T value, CancellationToken token)
+        {
             return Task.Run(() =>
             {
                 var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
                 var targetType = symbolInfo.DataType.ManagedType;
                 var targetValue = targetType != null ? Convert.ChangeType(value, targetType) : value;
                 client.WriteSymbol(symbolInfo, targetValue);
-            });
+            }, token);
         }
 
         public static Task<T> ReadAsync<T>(this IAdsSymbolicAccess client, string variablePath)
+        {
+            return ReadAsync<T>(client, variablePath, CancellationToken.None);
+        }
+        
+        public static Task<T> ReadAsync<T>(this IAdsSymbolicAccess client, string variablePath, CancellationToken token)
         {
             return Task.Run(() =>
             {
                 var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
                 var obj = client.ReadSymbol(symbolInfo);
                 return (T) Convert.ChangeType(obj, typeof(T));
-            });
+            }, token);
         }
 
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JArray array, CancellationToken token)
+        {
+            return WriteJson(client, variablePath, array, false, token);
+        }
+        
         public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JArray array)
         {
-            return WriteJson(client, variablePath, array, false);
+            return WriteJson(client, variablePath, array, false, CancellationToken.None);
         }
         
         public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force)
         {
-            return WriteArray(client, variablePath, array, force);
+            return WriteArray(client, variablePath, array, force, CancellationToken.None);
+        }
+        
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force, CancellationToken token)
+        {
+            return WriteArray(client, variablePath, array, force, token);
         }
         
         public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JObject obj)
         {
-            return WriteJson(client, variablePath, obj, false);
+            return WriteJson(client, variablePath, obj, false, CancellationToken.None);
+        }
+        
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JObject obj, CancellationToken token)
+        {
+            return WriteJson(client, variablePath, obj, false, token);
         }
         
         public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JObject obj, bool force)
         {
-            return WriteRecursive(client, variablePath, obj, string.Empty, force);
+            return WriteRecursive(client, variablePath, obj, string.Empty, force, CancellationToken.None);
+        }
+        
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JObject obj, bool force, CancellationToken token)
+        {
+            return WriteRecursive(client, variablePath, obj, string.Empty, force, token);
         }
 
-        private static async Task WriteArray(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force = false)
+        private static async Task WriteArray(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force, CancellationToken token)
         {
             var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
             var dataType = symbolInfo.DataType;
@@ -66,16 +97,16 @@ namespace TwinCAT.JsonExtension
             {
                 if (dataType.BaseType.ManagedType != null)
                 {
-                    await WriteAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i]).ConfigureAwait(false);
+                    await WriteAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i], token).ConfigureAwait(false);
                 }
                 else
                 {
-                    await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i] as JObject, string.Empty, force).ConfigureAwait(false);
+                    await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i] as JObject, string.Empty, force, token).ConfigureAwait(false);
                 }
             }
         }
         
-        private static async Task WriteRecursive(this IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool force = false)
+        private static async Task WriteRecursive(this IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool force, CancellationToken token)
         {
             var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
             var dataType = symbolInfo.DataType;
@@ -88,11 +119,11 @@ namespace TwinCAT.JsonExtension
                     {
                         if (dataType.BaseType.ManagedType != null)
                         {
-                            await WriteAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i]).ConfigureAwait(false);
+                            await WriteAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i], token).ConfigureAwait(false);
                         }
                         else
                         {
-                            await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", parent, jsonName + $"[{i}]", force).ConfigureAwait(false);
+                            await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", parent, jsonName + $"[{i}]", force, token).ConfigureAwait(false);
                         }
                     }
                 }
@@ -104,26 +135,36 @@ namespace TwinCAT.JsonExtension
                         {
                             if (HasJsonName(subItem, force))
                             {
-                                await WriteRecursive(client, variablePath + "." + subItem.SubItemName, parent, string.IsNullOrEmpty(jsonName) ? GetJsonName(subItem) : jsonName + "." + GetJsonName(subItem)).ConfigureAwait(false);
+                                await WriteRecursive(client, variablePath + "." + subItem.SubItemName, parent, string.IsNullOrEmpty(jsonName) ? GetJsonName(subItem) : jsonName + "." + GetJsonName(subItem), force, token).ConfigureAwait(false);
                             }
                         }
                     }
                 }
                 else
                 {
-                    await WriteAsync(client, symbolInfo.Name, parent.SelectToken(jsonName)).ConfigureAwait(false);
+                    await WriteAsync(client, symbolInfo.Name, parent.SelectToken(jsonName), token).ConfigureAwait(false);
                 }
             }
         }
         
         public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath)
         {
-            return ReadJson(client, variablePath, false);
+            return ReadJson(client, variablePath, false, CancellationToken.None);
+        }
+        
+        public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, CancellationToken token)
+        {
+            return ReadJson(client, variablePath, false, token);
         }
         
         public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, bool force)
         {
-            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), force:force));
+            return ReadJson(client, variablePath, force, CancellationToken.None);
+        }
+        
+        public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, bool force, CancellationToken token)
+        {
+            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), force:force), token);
         }
 
         private static JObject ReadRecursive(IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool isChild = false, bool force = false)
@@ -144,7 +185,7 @@ namespace TwinCAT.JsonExtension
                         for (int i = dataType.Dimensions.LowerBounds.First(); i <= dataType.Dimensions.UpperBounds.First(); i++)
                         {
                             var child = new JObject();
-                            ReadRecursive(client, variablePath + $"[{i}]", child, jsonName, force:force);
+                            ReadRecursive(client, variablePath + $"[{i}]", child, jsonName, isChild:false, force:force);
                             array.Add(child);
                         }
                         parent.Add(jsonName, array);
@@ -159,7 +200,7 @@ namespace TwinCAT.JsonExtension
                         {
                             if (HasJsonName(subItem, force))
                             {
-                                ReadRecursive(client, variablePath + "." + subItem.SubItemName, isChild ? child : parent, GetJsonName(subItem), true, force);
+                                ReadRecursive(client, variablePath + "." + subItem.SubItemName, isChild ? child : parent, GetJsonName(subItem), isChild:true, force);
                             }
                         }
                         if (isChild)
