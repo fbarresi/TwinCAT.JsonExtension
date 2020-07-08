@@ -39,6 +39,20 @@ namespace TwinCAT.JsonExtension.Tests
             var json = await clientMock.Object.ReadJson(variableName);
             JToken.DeepEquals(json, expected).ShouldBeTrue();
         }
+        
+        [Fact]
+        public async Task TestReadMultidimensionalArray()
+        {
+            var tcAdsSymbol = new DebugSymbol();
+            tcAdsSymbol.DataType = new DebugType() { Category = DataTypeCategory.Array, BaseType = new DebugType(){ManagedType = typeof(int)}};
+            var value = new int[][]{new int[] {1,2,3}, new int[] {4,5,6}};
+            var clientMock = TestReadWriteOperations.GetClientMock(tcAdsSymbol, value);
+            var variableName = "test";
+            var expected = new JObject();
+            expected.Add(variableName, new JArray(new JArray(value[0]), new JArray(value[1])));
+            var json = await clientMock.Object.ReadJson(variableName);
+            JToken.DeepEquals(json, expected).ShouldBeTrue();
+        }
 
         [Fact]
         public async Task TestReadComplexType()

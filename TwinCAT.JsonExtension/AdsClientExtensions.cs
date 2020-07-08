@@ -177,7 +177,7 @@ namespace TwinCAT.JsonExtension
                     if (dataType.BaseType.ManagedType != null)
                     {
                         var obj = client.ReadSymbol(symbolInfo);
-                        parent.Add(jsonName, new JArray(obj));
+                        parent.Add(jsonName, JArray.FromObject(obj));
                     }
                     else
                     {
