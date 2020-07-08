@@ -22,7 +22,7 @@ namespace TwinCAT.JsonExtension
             {
                 var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
                 var targetType = symbolInfo.DataType.ManagedType;
-                var targetValue = targetType != null ? Convert.ChangeType(value, targetType) : value;
+                var targetValue = targetType != null ? (value is JToken jToken) ? jToken.ToObject(targetType) : Convert.ChangeType(value, targetType) : value;
                 client.WriteSymbol(symbolInfo, targetValue);
             }, token);
         }
