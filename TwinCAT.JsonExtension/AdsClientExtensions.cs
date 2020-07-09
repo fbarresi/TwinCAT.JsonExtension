@@ -99,6 +99,10 @@ namespace TwinCAT.JsonExtension
                 {
                     await WriteAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i], token).ConfigureAwait(false);
                 }
+                else if (dataType.BaseType.Category == DataTypeCategory.Array)
+                {
+                    await WriteArray(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i] as JArray, force, token).ConfigureAwait(false);
+                }
                 else
                 {
                     await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i] as JObject, string.Empty, force, token).ConfigureAwait(false);
