@@ -186,7 +186,14 @@ namespace TwinCAT.JsonExtension
                         {
                             var child = new JObject();
                             ReadRecursive(client, variablePath + $"[{i}]", child, jsonName, isChild:false, force:force);
-                            array.Add(child);
+                            if (child[jsonName] != null && dataType.Category == DataTypeCategory.Array)
+                            {
+                                array.Add(child[jsonName]);
+                            }
+                            else
+                            {
+                                array.Add(child);
+                            }
                         }
                         parent.Add(jsonName, array);
                     }
