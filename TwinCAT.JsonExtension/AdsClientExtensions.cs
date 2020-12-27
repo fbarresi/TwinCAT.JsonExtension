@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using TwinCAT.Ads;
+using TwinCAT.Ads.TypeSystem;
 using TwinCAT.PlcOpen;
 using TwinCAT.TypeSystem;
 
@@ -20,10 +21,10 @@ namespace TwinCAT.JsonExtension
         {
             return Task.Run(() =>
             {
-                var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
-                var targetType = symbolInfo.DataType.ManagedType;
+                var symbolInfo = client.ReadSymbol(variablePath);
+                var targetType = (symbolInfo.DataType as DataType)?.ManagedType;
                 var targetValue = targetType != null ? (value is JToken jToken) ? jToken.ToObject(targetType) : Convert.ChangeType(value, targetType) : value;
-                client.WriteSymbol(symbolInfo, targetValue);
+                client.WriteValue(symbolInfo, targetValue);
             }, token);
         }
 
@@ -36,8 +37,8 @@ namespace TwinCAT.JsonExtension
         {
             return Task.Run(() =>
             {
-                var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
-                var obj = client.ReadSymbol(symbolInfo);
+                var symbolInfo = client.ReadSymbol(variablePath);
+                var obj = client.ReadValue(symbolInfo);
                 return (T) Convert.ChangeType(obj, typeof(T));
             }, token);
         }
@@ -84,8 +85,8 @@ namespace TwinCAT.JsonExtension
 
         private static async Task WriteArray(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force, CancellationToken token)
         {
-            var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
-            var dataType = symbolInfo.DataType;
+            var symbolInfo = client.ReadSymbol(variablePath);
+            var dataType = symbolInfo.DataType as ArrayType;
 
             if (dataType.Category != DataTypeCategory.Array)
             {
@@ -95,11 +96,11 @@ namespace TwinCAT.JsonExtension
             var elementCount = array.Count < dataType.Dimensions.ElementCount ? array.Count : dataType.Dimensions.ElementCount;
             for (int i = 0; i < elementCount; i++)
             {
-                if (dataType.BaseType.ManagedType != null)
+                if ((dataType.ElementType as DataType)?.ManagedType != null)
                 {
                     await WriteAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i], token).ConfigureAwait(false);
                 }
-                else if (dataType.BaseType.Category == DataTypeCategory.Array)
+                else if (dataType.ElementType?.Category == DataTypeCategory.Array)
                 {
                     await WriteArray(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i] as JArray, force, token).ConfigureAwait(false);
                 }
@@ -112,22 +113,23 @@ namespace TwinCAT.JsonExtension
         
         private static async Task WriteRecursive(this IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool force, CancellationToken token)
         {
-            var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
-            var dataType = symbolInfo.DataType;
+            var symbolInfo = client.ReadSymbol(variablePath);
+            var dataType = symbolInfo.DataType as DataType;
             {
                 if (dataType.Category == DataTypeCategory.Array)
                 {
+                    var arrayType = symbolInfo.DataType as ArrayType;
                     var array = parent.SelectToken(jsonName) as JArray;
-                    var elementCount = array.Count < dataType.Dimensions.ElementCount ? array.Count : dataType.Dimensions.ElementCount;
+                    var elementCount = array.Count < arrayType.Dimensions.ElementCount ? array.Count : arrayType.Dimensions.ElementCount;
                     for (int i = 0; i < elementCount; i++)
                     {
-                        if (dataType.BaseType.ManagedType != null)
+                        if ((arrayType.ElementType as DataType)?.ManagedType != null)
                         {
-                            await WriteAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i], token).ConfigureAwait(false);
+                            await WriteAsync(client, variablePath + $"[{i + arrayType.Dimensions.LowerBounds.First()}]", array[i], token).ConfigureAwait(false);
                         }
                         else
                         {
-                            await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", parent, jsonName + $"[{i}]", force, token).ConfigureAwait(false);
+                            await WriteRecursive(client, variablePath + $"[{i + arrayType.Dimensions.LowerBounds.First()}]", parent, jsonName + $"[{i}]", force, token).ConfigureAwait(false);
                         }
                     }
                 }
@@ -146,7 +148,7 @@ namespace TwinCAT.JsonExtension
                 }
                 else
                 {
-                    await WriteAsync(client, symbolInfo.Name, parent.SelectToken(jsonName), token).ConfigureAwait(false);
+                    await WriteAsync(client, symbolInfo.InstanceName, parent.SelectToken(jsonName), token).ConfigureAwait(false);
                 }
             }
         }
@@ -173,20 +175,21 @@ namespace TwinCAT.JsonExtension
 
         private static JObject ReadRecursive(IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool isChild = false, bool force = false)
         {
-            var symbolInfo = (ITcAdsSymbol5)client.ReadSymbolInfo(variablePath);
-            var dataType = symbolInfo.DataType;
+            var symbolInfo = client.ReadSymbol(variablePath);
+            var dataType = symbolInfo.DataType as DataType;
             {
                 if (dataType.Category == DataTypeCategory.Array)
                 {
-                    if (dataType.BaseType.ManagedType != null)
+                    var arrayType = symbolInfo.DataType as ArrayType;
+                    if ((arrayType.ElementType as DataType)?.ManagedType != null)
                     {
-                        var obj = client.ReadSymbol(symbolInfo);
+                        var obj = client.ReadValue(symbolInfo);
                         parent.Add(jsonName, JArray.FromObject(obj));
                     }
                     else
                     {
                         var array = new JArray();
-                        for (int i = dataType.Dimensions.LowerBounds.First(); i <= dataType.Dimensions.UpperBounds.First(); i++)
+                        for (int i = arrayType.Dimensions.LowerBounds.First(); i <= arrayType.Dimensions.UpperBounds.First(); i++)
                         {
                             var child = new JObject();
                             ReadRecursive(client, variablePath + $"[{i}]", child, jsonName, isChild:false, force:force);
@@ -222,7 +225,7 @@ namespace TwinCAT.JsonExtension
                 }
                 else
                 {
-                    var obj = client.ReadSymbol(symbolInfo);
+                    var obj = client.ReadValue(symbolInfo);
                     parent.Add(jsonName, new JValue(obj.TryConvertToDotNetManagedType()));
                 }
             }
