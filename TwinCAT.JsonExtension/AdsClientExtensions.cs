@@ -135,13 +135,14 @@ namespace TwinCAT.JsonExtension
                 }
                 else if (dataType.ManagedType == null)
                 {
-                    if (dataType.SubItems.Any())
+                    var structType = symbolInfo.DataType as IStructType;
+                    if ((bool) structType?.Members.Any())
                     {
-                        foreach (var subItem in dataType.SubItems)
+                        foreach (var subItem in structType.Members)
                         {
                             if (HasJsonName(subItem, force))
                             {
-                                await WriteRecursive(client, variablePath + "." + subItem.SubItemName, parent, string.IsNullOrEmpty(jsonName) ? GetJsonName(subItem) : jsonName + "." + GetJsonName(subItem), force, token).ConfigureAwait(false);
+                                await WriteRecursive(client, variablePath + "." + subItem.InstanceName, parent, string.IsNullOrEmpty(jsonName) ? GetJsonName(subItem) : jsonName + "." + GetJsonName(subItem), force, token).ConfigureAwait(false);
                             }
                         }
                     }
@@ -207,14 +208,15 @@ namespace TwinCAT.JsonExtension
                 }
                 else if (dataType.ManagedType == null)
                 {
-                    if (dataType.SubItems.Any())
+                    var structType = symbolInfo.DataType as IStructType;
+                    if ((bool) structType?.Members.Any())
                     {
                         var child = new JObject();
-                        foreach (var subItem in dataType.SubItems)
+                        foreach (var subItem in structType?.Members)
                         {
                             if (HasJsonName(subItem, force))
                             {
-                                ReadRecursive(client, variablePath + "." + subItem.SubItemName, isChild ? child : parent, GetJsonName(subItem), isChild:true, force);
+                                ReadRecursive(client, variablePath + "." + subItem.InstanceName, isChild ? child : parent, GetJsonName(subItem), isChild:true, force);
                             }
                         }
                         if (isChild)
@@ -238,13 +240,13 @@ namespace TwinCAT.JsonExtension
             return variablePath.Split(new[] {'.'}, StringSplitOptions.RemoveEmptyEntries).Last();
         }
 
-        public static string GetJsonName(this ITcAdsSubItem dataType)
+        public static string GetJsonName(this IAttributedInstance dataType)
         {
             var jsonName = dataType.Attributes.FirstOrDefault(attribute => attribute.Name.Equals("json", StringComparison.InvariantCultureIgnoreCase))?.Value;
-            return string.IsNullOrEmpty(jsonName) ? GetVaribleNameFromFullPath(dataType.SubItemName) : jsonName;
+            return string.IsNullOrEmpty(jsonName) ? GetVaribleNameFromFullPath(dataType.InstanceName) : jsonName;
         }
 
-        public static bool HasJsonName(this ITcAdsSubItem subItem, bool force)
+        public static bool HasJsonName(this IAttributedInstance subItem, bool force)
         {
             if (force)
             {
