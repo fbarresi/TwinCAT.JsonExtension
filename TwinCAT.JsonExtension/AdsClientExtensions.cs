@@ -86,7 +86,7 @@ namespace TwinCAT.JsonExtension
         private static async Task WriteArray(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force, CancellationToken token)
         {
             var symbolInfo = client.ReadSymbol(variablePath);
-            var dataType = symbolInfo.DataType as ArrayType;
+            var dataType = symbolInfo.DataType as IArrayType;
 
             if (dataType.Category != DataTypeCategory.Array)
             {
@@ -118,7 +118,7 @@ namespace TwinCAT.JsonExtension
             {
                 if (dataType.Category == DataTypeCategory.Array)
                 {
-                    var arrayType = symbolInfo.DataType as ArrayType;
+                    var arrayType = symbolInfo.DataType as IArrayType;
                     var array = parent.SelectToken(jsonName) as JArray;
                     var elementCount = array.Count < arrayType.Dimensions.ElementCount ? array.Count : arrayType.Dimensions.ElementCount;
                     for (int i = 0; i < elementCount; i++)
@@ -181,7 +181,7 @@ namespace TwinCAT.JsonExtension
             {
                 if (dataType.Category == DataTypeCategory.Array)
                 {
-                    var arrayType = symbolInfo.DataType as ArrayType;
+                    var arrayType = symbolInfo.DataType as IArrayType;
                     if ((arrayType.ElementType as DataType)?.ManagedType != null)
                     {
                         var obj = client.ReadValue(symbolInfo);
@@ -274,13 +274,7 @@ namespace TwinCAT.JsonExtension
             {
                 case DT dt:
                 {
-                    conversion = PlcOpenDTConverter.TryConvert(dt, typeof(DateTime), out newObject);
-                    if (conversion)
-                    {
-                        return newObject;
-                    }
-
-                    break;
+                    return dt.Date.DateTime;
                 }
 
                 case DATE date:
