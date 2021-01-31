@@ -19,7 +19,8 @@ namespace TwinCAT.JsonExtension.Tests
         public async Task TestReadSimpleJson()
         {
             var tcAdsSymbol = new DebugSymbol();
-            tcAdsSymbol.DataType = new DebugType(){Category = DataTypeCategory.Primitive, ManagedType = typeof(int)};
+            tcAdsSymbol.DataType = new PrimitiveType("test", AdsDataTypeId.ADST_INT32, 4, PrimitiveTypeFlags.Numeric,
+                typeof(int));
             var value = 1;
             var clientMock = TestReadWriteOperations.GetClientMock(tcAdsSymbol, value);
             var variableName = "test";
