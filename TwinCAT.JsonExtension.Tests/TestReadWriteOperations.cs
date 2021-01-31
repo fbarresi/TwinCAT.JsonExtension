@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Moq;
 using Shouldly;
 using TwinCAT.Ads;
+using TwinCAT.Ads.TypeSystem;
 using TwinCAT.TypeSystem;
 using Xunit;
 
@@ -10,14 +11,14 @@ namespace TwinCAT.JsonExtension.Tests
 {
     public class TestReadWriteOperations
     {
-        public static Mock<IAdsSymbolicAccess> GetClientMock<T>(ITcAdsSymbol symbol, T value)
+        public static Mock<IAdsSymbolicAccess> GetClientMock<T>(IAdsSymbol symbol, T value)
         {
             var clientMock = new Mock<IAdsSymbolicAccess>();
 
-            clientMock.Setup(client => client.ReadSymbol(It.IsAny<ITcAdsSymbol>()))
+            clientMock.Setup(client => client.ReadValue(It.IsAny<ISymbol>()))
                 .Returns(value);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.IsAny<string>()))
+            clientMock.Setup(client => client.ReadSymbol(It.IsAny<string>()))
                 .Returns(symbol);
 
             return clientMock;
@@ -59,7 +60,7 @@ namespace TwinCAT.JsonExtension.Tests
         [Fact]
         public async Task ReadEmptyJsonName()
         {
-            var item = new DebugSubItem() { SubItemName = "test", Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>())) };
+            var item = new DebugSubItem() { InstanceName = "test", Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>())) };
             var jsonName = item.GetJsonName();
             jsonName.ShouldBe("test");
         }
@@ -75,8 +76,8 @@ namespace TwinCAT.JsonExtension.Tests
 
             var readVariable = await clientMock.Object.ReadAsync<string>(variableName);
 
-            clientMock.Verify(client => client.ReadSymbolInfo(variableName), Times.Once);
-            clientMock.Verify(client => client.ReadSymbol(symbol), Times.Once);
+            clientMock.Verify(client => client.ReadSymbol(variableName), Times.Once);
+            clientMock.Verify(client => client.ReadValue(symbol), Times.Once);
             readVariable.ShouldBe(value.ToString());
         }
 
@@ -91,8 +92,8 @@ namespace TwinCAT.JsonExtension.Tests
             
             var readVariable = await clientMock.Object.ReadAsync<int>(variableName);
 
-            clientMock.Verify(client => client.ReadSymbolInfo(variableName), Times.Once);
-            clientMock.Verify(client => client.ReadSymbol(symbol), Times.Once);
+            clientMock.Verify(client => client.ReadSymbol(variableName), Times.Once);
+            clientMock.Verify(client => client.ReadValue(symbol), Times.Once);
             readVariable.ShouldBe(value);
         }
 
@@ -109,8 +110,8 @@ namespace TwinCAT.JsonExtension.Tests
 
             await clientMock.Object.WriteAsync(variableName, value);
 
-            clientMock.Verify(client => client.ReadSymbolInfo(variableName), Times.Once);
-            clientMock.Verify(client => client.WriteSymbol(symbol, value), Times.Once);
+            clientMock.Verify(client => client.ReadSymbol(variableName), Times.Once);
+            clientMock.Verify(client => client.WriteValue(symbol, value as object), Times.Once);
         }
 
         [Fact]
@@ -126,8 +127,8 @@ namespace TwinCAT.JsonExtension.Tests
 
             await clientMock.Object.WriteAsync(variableName, value);
 
-            clientMock.Verify(client => client.ReadSymbolInfo(variableName), Times.Once);
-            clientMock.Verify(client => client.WriteSymbol(symbol, value.ToString()), Times.Once);
+            clientMock.Verify(client => client.ReadSymbol(variableName), Times.Once);
+            clientMock.Verify(client => client.WriteValue(symbol, value as object), Times.Once);
         }
     }
 }

@@ -24,7 +24,7 @@ namespace TwinCAT.JsonExtension.Tests
             {
                 Name = variableName,
                 ManagedType = null,
-                SubItems = new ReadOnlySubItemCollection(new List<ITcAdsSubItem>()
+                Members = new MemberCollection(new List<IMember>()
                 {
                     new DebugSubItem()
                     {
@@ -39,16 +39,16 @@ namespace TwinCAT.JsonExtension.Tests
 
             var clientMock = new Mock<IAdsSymbolicAccess>();
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.Equals(variableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.Equals(variableName))))
                 .Returns(complexSymbol);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.StartsWith(variableName + "." + innerVariableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.StartsWith(variableName + "." + innerVariableName))))
                 .Returns(childSymbol);
 
             var json = new JObject();
             json.Add(innerVariableName, value);
             await clientMock.Object.WriteJson(variableName, json);
-            clientMock.Verify(client => client.WriteSymbol(childSymbol, value), Times.Once);
+            clientMock.Verify(client => client.WriteValue(childSymbol, value), Times.Once);
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace TwinCAT.JsonExtension.Tests
             origin.DataType = new DebugType()
             {
                 ManagedType = null,
-                SubItems = new ReadOnlySubItemCollection(new List<ITcAdsSubItem>()
+                Members = new MemberCollection(new List<IMember>()
                 {
                     new DebugSubItem()
                     {
@@ -82,7 +82,7 @@ namespace TwinCAT.JsonExtension.Tests
             complexSymbol.DataType = new DebugType()
             {
                 ManagedType = null,
-                SubItems = new ReadOnlySubItemCollection(new List<ITcAdsSubItem>()
+                Members = new MemberCollection(new List<IMember>()
                 {
                     new DebugSubItem()
                     {
@@ -96,7 +96,7 @@ namespace TwinCAT.JsonExtension.Tests
             innerComplexSymbol.DataType = new DebugType()
             {
                 ManagedType = null,
-                SubItems = new ReadOnlySubItemCollection(new List<ITcAdsSubItem>()
+                Members = new MemberCollection(new List<IMember>()
                 {
                     new DebugSubItem()
                     {
@@ -111,19 +111,19 @@ namespace TwinCAT.JsonExtension.Tests
 
             var clientMock = new Mock<IAdsSymbolicAccess>();
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.Equals(originName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.Equals(originName))))
                 .Returns(origin);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.StartsWith(originName + "." + variableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.StartsWith(originName + "." + variableName))))
                 .Returns(arraySymbol);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.StartsWith(originName + "." + variableName + "[") && s.EndsWith("]"))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.StartsWith(originName + "." + variableName + "[") && s.EndsWith("]"))))
                 .Returns(complexSymbol);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.EndsWith("]." + innerVariableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.EndsWith("]." + innerVariableName))))
                 .Returns(innerComplexSymbol);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.EndsWith("]." + innerVariableName + "." + secondInnerVariableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.EndsWith("]." + innerVariableName + "." + secondInnerVariableName))))
                 .Callback((string s) => { childSymbol.Name = s; })
                 .Returns(childSymbol);
 
@@ -136,7 +136,7 @@ namespace TwinCAT.JsonExtension.Tests
 
             await clientMock.Object.WriteJson(originName, json);
 
-            clientMock.Verify(client => client.WriteSymbol(childSymbol, value), Times.Exactly(elementCount));
+            clientMock.Verify(client => client.WriteValue(childSymbol, value), Times.Exactly(elementCount));
         }
 
         [Fact]
@@ -150,7 +150,7 @@ namespace TwinCAT.JsonExtension.Tests
             origin.DataType = new DebugType()
             {
                 ManagedType = null,
-                SubItems = new ReadOnlySubItemCollection(new List<ITcAdsSubItem>()
+                Members = new MemberCollection(new List<IMember>()
                 {
                     new DebugSubItem()
                     {
@@ -169,13 +169,13 @@ namespace TwinCAT.JsonExtension.Tests
 
             var clientMock = new Mock<IAdsSymbolicAccess>();
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.Equals(originName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.Equals(originName))))
                 .Returns(origin);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.StartsWith(originName + "." + variableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.StartsWith(originName + "." + variableName))))
                 .Returns(arraySymbol);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.StartsWith(originName + "." + variableName + "[") && s.EndsWith("]"))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.StartsWith(originName + "." + variableName + "[") && s.EndsWith("]"))))
                 .Returns(childSymbol);
 
 
@@ -184,7 +184,7 @@ namespace TwinCAT.JsonExtension.Tests
 
             await clientMock.Object.WriteJson(originName, json);
 
-            clientMock.Verify(client => client.WriteSymbol(childSymbol, value), Times.Exactly(elementCount));
+            clientMock.Verify(client => client.WriteValue(childSymbol, value), Times.Exactly(elementCount));
         }
 
 

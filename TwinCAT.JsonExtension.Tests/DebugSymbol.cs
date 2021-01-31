@@ -1,46 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using TwinCAT.Ads;
+using TwinCAT.Ads.TypeSystem;
 using TwinCAT.TypeSystem;
 
 namespace TwinCAT.JsonExtension.Tests
 {
-    internal class DebugSymbol : ITcAdsSymbol, ITcAdsSymbol5
+    internal class DebugSymbol : IAdsSymbol
     {
-        public long IndexGroup { get; set; }
-        public long IndexOffset { get; set; }
-        public int Size { get; set; }
-        public AdsDatatypeId Datatype { get; set; }
+        public int Size { get; }
+        public bool IsBitType { get; }
+        public int BitSize { get; }
+        public int ByteSize { get; }
+        public bool IsByteAligned { get; }
+        public IDataType? DataType { get; set; }
+        public string TypeName { get; }
+        public string InstanceName { get; }
+        public string InstancePath { get; }
+        public bool IsStatic { get; }
+        public bool IsReference { get; }
+        public bool IsPointer { get; }
+        public string Comment { get; }
+        public ITypeAttributeCollection Attributes { get; }
+        public Encoding ValueEncoding { get; }
+        public DataTypeCategory Category { get; }
+        public ISymbol? Parent { get; }
+        public ISymbolCollection<ISymbol> SubSymbols { get; }
+        public bool IsContainerType { get; }
+        public bool IsPrimitiveType { get; }
+        public bool IsPersistent { get; }
+        public bool IsReadOnly { get; }
+        public bool IsRecursive { get; }
+        public uint IndexGroup { get; }
+        public uint IndexOffset { get; }
+        public bool IsVirtual { get; }
+        public byte ContextMask { get; }
+        public AmsAddress? ImageBaseAddress { get; }
+        public AdsDataTypeId DataTypeId { get; }
         public string Name { get; set; }
-        public string Type { get; set; }
-        public string Comment { get; set; }
-        public bool IsPersistent { get; set;}
-        public bool IsBitType { get; set;}
-        public bool IsReference { get; set;}
-        public bool IsPointer { get; set;}
-        public bool IsTypeGuid { get; set;}
-        public bool IsReadOnly { get; set;}
-        public bool IsTcComInterfacePointer { get; set;}
-        public int ContextMask { get; set;}
-        public bool IsArray { get; set;}
-        public int ArrayDimensions { get; set;}
-        public AdsDatatypeArrayInfo[] ArrayInfos { get; set;}
-        public ReadOnlyTypeAttributeCollection Attributes { get; set;}
-        public bool IsEnum { get; set;}
-        public bool IsStruct { get; set;}
-        public bool HasRpcMethods { get; set;}
-        public ReadOnlyRpcMethodCollection RpcMethods { get; set;}
-        public DataTypeCategory Category { get; set;}
-        public int BitSize { get; set;}
-        public int ByteSize { get; set;}
-        public bool IsRecursive(IEnumerable<ITcAdsSymbol5> parents)
-        {
-            return IsStatic;
-        }
-
-        public ITcAdsDataType DataType { get; set;}
-        public AdsDatatypeId DataTypeId { get; set;}
-        public string TypeName { get; set;}
-        public bool IsStatic { get; set;}
     }
 }

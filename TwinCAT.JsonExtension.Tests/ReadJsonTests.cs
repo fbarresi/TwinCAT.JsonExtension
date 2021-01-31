@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using Newtonsoft.Json.Linq;
 using Shouldly;
 using TwinCAT.Ads;
+using TwinCAT.Ads.Internal;
+using TwinCAT.Ads.TypeSystem;
 using TwinCAT.TypeSystem;
 using Xunit;
 
@@ -29,8 +32,12 @@ namespace TwinCAT.JsonExtension.Tests
         [Fact]
         public async Task TestReadArray()
         {
+            var t = typeof(short);
             var tcAdsSymbol = new DebugSymbol();
-            tcAdsSymbol.DataType = new DebugType() { Category = DataTypeCategory.Array, BaseType = new DebugType(){ManagedType = typeof(int)}};
+            tcAdsSymbol.DataType = new ArrayType("TestArray",
+                new PrimitiveType("INT", AdsDataTypeId.ADST_INT16, 2, PrimitiveTypeFlags.Numeric, t),
+                new DimensionCollection(3), 
+                AdsDataTypeFlags.Aligned);
             var value = new int[]{1,2,3};
             var clientMock = TestReadWriteOperations.GetClientMock(tcAdsSymbol, value);
             var variableName = "test";
@@ -62,7 +69,7 @@ namespace TwinCAT.JsonExtension.Tests
             var value = 1;
 
             var complexSymbol = new DebugSymbol();
-            complexSymbol.DataType = new DebugType(){ManagedType = null, SubItems = new ReadOnlySubItemCollection(new List<ITcAdsSubItem>(){new DebugSubItem()
+            complexSymbol.DataType = new DebugType(){ManagedType = null, Members = new MemberCollection(new List<IMember>(){new DebugSubItem()
             {
                 SubItemName = innerVariableName,
                 Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>(){new DebugAttribute("json", innerVariableName)})) 
@@ -73,13 +80,13 @@ namespace TwinCAT.JsonExtension.Tests
 
             var clientMock = new Mock<IAdsSymbolicAccess>();
 
-            clientMock.Setup(client => client.ReadSymbol(It.Is<ITcAdsSymbol>(s => s == childSymbol)))
+            clientMock.Setup(client => client.ReadValue(It.Is<IAdsSymbol>(s => s == childSymbol)))
                 .Returns(1);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.Equals(variableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.Equals(variableName))))
                 .Returns(complexSymbol);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.StartsWith(variableName+"."+ innerVariableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.StartsWith(variableName+"."+ innerVariableName))))
                 .Returns(childSymbol);
 
             var expected = new JObject();
@@ -101,7 +108,7 @@ namespace TwinCAT.JsonExtension.Tests
             complexSymbol.DataType = new DebugType()
             {
                 ManagedType = null,
-                SubItems = new ReadOnlySubItemCollection(new List<ITcAdsSubItem>(){new DebugSubItem()
+                Members = new MemberCollection(new List<IMember>(){new DebugSubItem()
                 {
                     SubItemName = innerVariableName,
                     Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>(){new DebugAttribute("json", innerVariableName)}))
@@ -112,7 +119,7 @@ namespace TwinCAT.JsonExtension.Tests
             innerComplexSymbol.DataType = new DebugType()
             {
                 ManagedType = null,
-                SubItems = new ReadOnlySubItemCollection(new List<ITcAdsSubItem>(){new DebugSubItem()
+                Members = new MemberCollection(new List<IMember>(){new DebugSubItem()
                 {
                     SubItemName = secondInnerVariableName,
                     Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>(){new DebugAttribute("json", secondInnerVariableName) }))
@@ -124,16 +131,16 @@ namespace TwinCAT.JsonExtension.Tests
 
             var clientMock = new Mock<IAdsSymbolicAccess>();
 
-            clientMock.Setup(client => client.ReadSymbol(It.Is<ITcAdsSymbol>(s => s == childSymbol)))
+            clientMock.Setup(client => client.ReadValue(It.Is<ISymbol>(s => s == childSymbol)))
                 .Returns(1);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.Equals(variableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.Equals(variableName))))
                 .Returns(complexSymbol);
             
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.StartsWith(variableName + "." + innerVariableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.StartsWith(variableName + "." + innerVariableName))))
                 .Returns(innerComplexSymbol);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.StartsWith(variableName + "."+ innerVariableName+"."+secondInnerVariableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.StartsWith(variableName + "."+ innerVariableName+"."+secondInnerVariableName))))
                 .Returns(childSymbol);
 
             var expected = new JObject();
@@ -161,7 +168,7 @@ namespace TwinCAT.JsonExtension.Tests
             complexSymbol.DataType = new DebugType()
             {
                 ManagedType = null,
-                SubItems = new ReadOnlySubItemCollection(new List<ITcAdsSubItem>(){new DebugSubItem()
+                Members = new MemberCollection(new List<IMember>(){new DebugSubItem()
                 {
                     SubItemName = innerVariableName,
                     Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>(){new DebugAttribute("json", innerVariableName)}))
@@ -172,7 +179,7 @@ namespace TwinCAT.JsonExtension.Tests
             innerComplexSymbol.DataType = new DebugType()
             {
                 ManagedType = null,
-                SubItems = new ReadOnlySubItemCollection(new List<ITcAdsSubItem>(){new DebugSubItem()
+                Members = new MemberCollection(new List<IMember>(){new DebugSubItem()
                 {
                     SubItemName = secondInnerVariableName,
                     Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>(){new DebugAttribute("json", secondInnerVariableName) }))
@@ -184,19 +191,19 @@ namespace TwinCAT.JsonExtension.Tests
 
             var clientMock = new Mock<IAdsSymbolicAccess>();
 
-            clientMock.Setup(client => client.ReadSymbol(It.Is<ITcAdsSymbol>(s => s == childSymbol)))
+            clientMock.Setup(client => client.ReadValue(It.Is<IAdsSymbol>(s => s == childSymbol)))
                 .Returns(1);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.Equals(variableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.Equals(variableName))))
                 .Returns(arraySymbol);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.StartsWith(variableName+"[") && s.EndsWith("]"))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.StartsWith(variableName+"[") && s.EndsWith("]"))))
                 .Returns(complexSymbol);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.EndsWith("]." + innerVariableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.EndsWith("]." + innerVariableName))))
                 .Returns(innerComplexSymbol);
 
-            clientMock.Setup(client => client.ReadSymbolInfo(It.Is<string>(s => s.EndsWith("]." + innerVariableName + "." + secondInnerVariableName))))
+            clientMock.Setup(client => client.ReadSymbol(It.Is<string>(s => s.EndsWith("]." + innerVariableName + "." + secondInnerVariableName))))
                 .Returns(childSymbol);
 
             var expected = new JObject();
