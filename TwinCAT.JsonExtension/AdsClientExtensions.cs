@@ -23,7 +23,17 @@ namespace TwinCAT.JsonExtension
             {
                 var symbolInfo = client.ReadSymbol(variablePath);
                 var targetType = (symbolInfo.DataType as DataType)?.ManagedType;
-                var targetValue = targetType != null ? (value is JToken jToken) ? jToken.ToObject(targetType) : Convert.ChangeType(value, targetType) : value;
+                object targetValue;
+                if (targetType.Namespace == "TwinCAT.PlcOpen")
+                {
+                    targetValue = value.TryConvertToPlcOpenType(targetType);
+                }
+                else
+                {
+                    targetValue = targetType != null
+                        ? (value is JToken jToken) ? jToken.ToObject(targetType) : Convert.ChangeType(value, targetType)
+                        : value;
+                }
                 client.WriteValue(symbolInfo, targetValue);
             }, token);
         }
@@ -149,7 +159,7 @@ namespace TwinCAT.JsonExtension
                 }
                 else
                 {
-                    await WriteAsync(client, symbolInfo.InstanceName, parent.SelectToken(jsonName), token).ConfigureAwait(false);
+                    await WriteAsync(client, symbolInfo.InstancePath, parent.SelectToken(jsonName), token).ConfigureAwait(false);
                 }
             }
         }
@@ -325,6 +335,44 @@ namespace TwinCAT.JsonExtension
             }
 
             return obj;
+        }
+
+        public static object TryConvertToPlcOpenType(this object obj, Type targetType)
+        {
+            if (targetType == typeof(DT) || targetType == typeof(DATE))
+            {
+                var dateTimeOffset = (DateTimeOffset) ((obj is JToken jToken)
+                    ? jToken.ToObject(typeof(DateTimeOffset))
+                    : JToken.FromObject(obj).ToObject(typeof(DateTimeOffset)));
+                return dateTimeOffset.TryConvertToPlcOpenType(targetType);
+            }
+            if (targetType == typeof(TIME) || targetType == typeof(LTIME))
+            {
+                var timeSpan = (TimeSpan) ((obj is JToken jToken)
+                    ? jToken.ToObject(typeof(TimeSpan))
+                    : JToken.FromObject(obj).ToObject(typeof(TimeSpan)));
+                return timeSpan.TryConvertToPlcOpenType(targetType);
+            }
+
+            return obj;
+        }
+
+        public static object TryConvertToPlcOpenType(this DateTimeOffset dateTimeOffset, Type targetType)
+        {
+            if (targetType == typeof(DT))
+                return new DT(dateTimeOffset);
+            if (targetType == typeof(DATE))
+                return new DATE(dateTimeOffset);
+            return dateTimeOffset;
+        }
+        
+        public static object TryConvertToPlcOpenType(this TimeSpan timeSpan, Type targetType)
+        {
+            if (targetType == typeof(TIME))
+                return new TIME(timeSpan);
+            if (targetType == typeof(LTIME))
+                return new LTIME(timeSpan);
+            return timeSpan;
         }
     }
 }

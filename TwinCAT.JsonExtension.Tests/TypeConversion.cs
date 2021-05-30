@@ -27,7 +27,7 @@ namespace TwinCAT.JsonExtension.Tests
         {
             var expected = DateTime.Now.Date;
             var obj = PlcOpenDateConverter.Create(expected);
-            obj.TryConvertToDotNetManagedType().ShouldBe(expected);
+            (obj.TryConvertToDotNetManagedType() is DateTime ? (DateTime) obj.TryConvertToDotNetManagedType() : default).Date.ShouldBe(expected);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace TwinCAT.JsonExtension.Tests
         {
             var expected = DateTime.Now.Date-TimeSpan.FromDays(1);
             var obj = PlcOpenDateConverter.Create(expected);
-            obj.TryConvertToDotNetManagedType().ShouldBe(expected);
+            (obj.TryConvertToDotNetManagedType() is DateTime ? (DateTime) obj.TryConvertToDotNetManagedType() : default).Date.ShouldBe(expected);
         }
 
         [Fact]
