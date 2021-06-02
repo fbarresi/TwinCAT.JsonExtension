@@ -159,7 +159,9 @@ namespace TwinCAT.JsonExtension
                 }
                 else
                 {
-                    await WriteAsync(client, symbolInfo.InstancePath, parent.SelectToken(jsonName), token).ConfigureAwait(false);
+                    var value = parent.SelectToken(jsonName);
+                    if(value != null)
+                        await WriteAsync(client, symbolInfo.InstancePath, value, token).ConfigureAwait(false);
                 }
             }
         }
