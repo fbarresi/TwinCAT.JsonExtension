@@ -160,8 +160,10 @@ namespace TwinCAT.JsonExtension
                 else
                 {
                     var value = parent.SelectToken(jsonName);
-                    if(value != null)
+                    if (value != null)
+                    {
                         await WriteAsync(client, symbolInfo.InstancePath, value, token).ConfigureAwait(false);
+                    }
                 }
             }
         }
@@ -299,8 +301,6 @@ namespace TwinCAT.JsonExtension
 
                     break;
                 }
-                default:
-                    break;
             }
 
             return obj;
@@ -332,8 +332,6 @@ namespace TwinCAT.JsonExtension
 
                     break;
                 }
-                default:
-                    break;
             }
 
             return obj;
@@ -362,18 +360,30 @@ namespace TwinCAT.JsonExtension
         public static object TryConvertToPlcOpenType(this DateTimeOffset dateTimeOffset, Type targetType)
         {
             if (targetType == typeof(DT))
+            {
                 return new DT(dateTimeOffset);
+            }
+
             if (targetType == typeof(DATE))
+            {
                 return new DATE(dateTimeOffset);
+            }
+            
             return dateTimeOffset;
         }
         
         public static object TryConvertToPlcOpenType(this TimeSpan timeSpan, Type targetType)
         {
             if (targetType == typeof(TIME))
+            {
                 return new TIME(timeSpan);
+            }
+
             if (targetType == typeof(LTIME))
+            {
                 return new LTIME(timeSpan);
+            }
+            
             return timeSpan;
         }
     }
