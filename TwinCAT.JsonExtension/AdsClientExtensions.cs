@@ -286,7 +286,7 @@ namespace TwinCAT.JsonExtension
             {
                 case DT dt:
                 {
-                    return dt.Date.DateTime;
+                    return dt.Value;
                 }
 
                 case DATE date:
