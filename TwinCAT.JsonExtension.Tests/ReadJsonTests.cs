@@ -19,8 +19,7 @@ namespace TwinCAT.JsonExtension.Tests
         public async Task TestReadSimpleJson()
         {
             var tcAdsSymbol = new DebugSymbol();
-            tcAdsSymbol.DataType = new PrimitiveType("test", AdsDataTypeId.ADST_INT32, 4, PrimitiveTypeFlags.Numeric,
-                typeof(int));
+            tcAdsSymbol.DataType = new PrimitiveType("test", typeof(int));
             var value = 1;
             var clientMock = TestReadWriteOperations.GetClientMock(tcAdsSymbol, value);
             var variableName = "test";
@@ -34,10 +33,8 @@ namespace TwinCAT.JsonExtension.Tests
         public async Task TestReadArray()
         {
             var tcAdsSymbol = new DebugSymbol();
-            tcAdsSymbol.DataType = new ArrayType("TestArray",
-                new PrimitiveType("INT", AdsDataTypeId.ADST_INT16, 2, PrimitiveTypeFlags.Numeric, typeof(int)),
-                new DimensionCollection(3), 
-                AdsDataTypeFlags.Aligned);
+            tcAdsSymbol.DataType = new ArrayType(new PrimitiveType("INT", typeof(int)),
+                new DimensionCollection(3));
             var value = new int[]{1,2,3};
             var clientMock = TestReadWriteOperations.GetClientMock(tcAdsSymbol, value);
             var variableName = "test";
@@ -51,12 +48,10 @@ namespace TwinCAT.JsonExtension.Tests
         public async Task TestReadMultidimensionalArray()
         {
             var tcAdsSymbol = new DebugSymbol();
-            var arrayType = new ArrayType("TestArray",
-                new PrimitiveType("INT", AdsDataTypeId.ADST_INT16, 2, PrimitiveTypeFlags.Numeric, typeof(int)),
-                new DimensionCollection(3), 
-                AdsDataTypeFlags.None);
+            var arrayType = new ArrayType(new PrimitiveType("INT", typeof(int)),
+                new DimensionCollection(3));
             var multipleArrayType =
-                new ArrayType("TestMultiArray", arrayType, new DimensionCollection(3), AdsDataTypeFlags.None);
+                new ArrayType(arrayType, new DimensionCollection(3));
             tcAdsSymbol.DataType = multipleArrayType;
             var value = new int[][]{new int[] {1,2,3}, new int[] {4,5,6}};
             var clientMock = TestReadWriteOperations.GetClientMock(tcAdsSymbol, value);
@@ -77,14 +72,16 @@ namespace TwinCAT.JsonExtension.Tests
             //var structure = new StructType(new AdsDataTypeEntry(true, StringMarshaler.Default, new ReadOnlySpan<byte>(new byte[1])));
             
             var complexSymbol = new DebugSymbol();
-            complexSymbol.DataType = new DebugType(){ManagedType = null, Members = new MemberCollection(new List<IMember>(){new DebugSubItem()
+            var members = new List<IMember>(){new DebugSubItem()
             {
+                InstanceName = innerVariableName,
                 SubItemName = innerVariableName,
                 Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>(){new DebugAttribute("json", innerVariableName)})) 
-            }})};
+            }};
+            complexSymbol.DataType = new DebugType(){ManagedType = null, Members = new MemberCollection(members), Category = DataTypeCategory.Struct};
 
             var childSymbol = new DebugSymbol();
-            childSymbol.DataType = new DebugType() { ManagedType = typeof(int) };
+            childSymbol.DataType = new DebugType() { ManagedType = typeof(int), Category = DataTypeCategory.Primitive};
 
             var clientMock = new Mock<IAdsSymbolicAccess>();
 
@@ -118,6 +115,7 @@ namespace TwinCAT.JsonExtension.Tests
                 ManagedType = null,
                 Members = new MemberCollection(new List<IMember>(){new DebugSubItem()
                 {
+                    InstanceName = innerVariableName,
                     SubItemName = innerVariableName,
                     Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>(){new DebugAttribute("json", innerVariableName)}))
                 }})
@@ -129,6 +127,7 @@ namespace TwinCAT.JsonExtension.Tests
                 ManagedType = null,
                 Members = new MemberCollection(new List<IMember>(){new DebugSubItem()
                 {
+                    InstanceName = secondInnerVariableName,
                     SubItemName = secondInnerVariableName,
                     Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>(){new DebugAttribute("json", secondInnerVariableName) }))
                 }})
@@ -178,6 +177,7 @@ namespace TwinCAT.JsonExtension.Tests
                 ManagedType = null,
                 Members = new MemberCollection(new List<IMember>(){new DebugSubItem()
                 {
+                    InstanceName = innerVariableName,
                     SubItemName = innerVariableName,
                     Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>(){new DebugAttribute("json", innerVariableName)}))
                 }})
@@ -189,6 +189,7 @@ namespace TwinCAT.JsonExtension.Tests
                 ManagedType = null,
                 Members = new MemberCollection(new List<IMember>(){new DebugSubItem()
                 {
+                    InstanceName = secondInnerVariableName,
                     SubItemName = secondInnerVariableName,
                     Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>(){new DebugAttribute("json", secondInnerVariableName) }))
                 }})

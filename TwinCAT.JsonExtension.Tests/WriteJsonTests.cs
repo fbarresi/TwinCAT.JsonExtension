@@ -28,6 +28,7 @@ namespace TwinCAT.JsonExtension.Tests
                 {
                     new DebugSubItem()
                     {
+                        InstanceName = innerVariableName,
                         SubItemName = innerVariableName,
                         Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>() {new DebugAttribute("json", innerVariableName)}))
                     }
@@ -48,7 +49,7 @@ namespace TwinCAT.JsonExtension.Tests
             var json = new JObject();
             json.Add(innerVariableName, value);
             await clientMock.Object.WriteJson(variableName, json);
-            clientMock.Verify(client => client.WriteValue(childSymbol, value), Times.Once);
+            clientMock.Verify(client => client.WriteValue(childSymbol, It.Is<object>(v => v.ToString() == value.ToString())), Times.Once);
         }
 
         [Fact]
@@ -68,6 +69,7 @@ namespace TwinCAT.JsonExtension.Tests
                 {
                     new DebugSubItem()
                     {
+                        InstanceName = variableName,
                         SubItemName = variableName,
                         Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>() {new DebugAttribute("json", variableName)}))
                     }
@@ -75,7 +77,13 @@ namespace TwinCAT.JsonExtension.Tests
             };
             var arraySymbol = new DebugSymbol();
             var elementCount = 3;
-            arraySymbol.DataType = new DebugType() {Category = DataTypeCategory.Array, BaseType = new DebugType() {ManagedType = null}, Dimensions = new ReadOnlyDimensionCollection(new DimensionCollection(new List<Dimension>() {new Dimension(0, elementCount)}))};
+            arraySymbol.DataType = new DebugType()
+            {
+                Category = DataTypeCategory.Array, 
+                BaseType = new DebugType() {ManagedType = null}, 
+                Dimensions = new ReadOnlyDimensionCollection(new DimensionCollection(new List<Dimension>() {new Dimension(0, elementCount)})),
+                ElementType = new DebugType(){Category = DataTypeCategory.Struct}
+            };
 
 
             var complexSymbol = new DebugSymbol() {Name = variableName};
@@ -86,6 +94,7 @@ namespace TwinCAT.JsonExtension.Tests
                 {
                     new DebugSubItem()
                     {
+                        InstanceName = innerVariableName,
                         SubItemName = innerVariableName,
                         Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>() {new DebugAttribute("json", innerVariableName)}))
                     }
@@ -100,6 +109,7 @@ namespace TwinCAT.JsonExtension.Tests
                 {
                     new DebugSubItem()
                     {
+                        InstanceName = secondInnerVariableName,
                         SubItemName = secondInnerVariableName,
                         Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>() {new DebugAttribute("json", secondInnerVariableName)}))
                     }
@@ -136,7 +146,7 @@ namespace TwinCAT.JsonExtension.Tests
 
             await clientMock.Object.WriteJson(originName, json);
 
-            clientMock.Verify(client => client.WriteValue(childSymbol, value), Times.Exactly(elementCount));
+            clientMock.Verify(client => client.WriteValue(childSymbol, It.Is<object>(v => v.ToString() == value.ToString())), Times.Exactly(elementCount));
         }
 
         [Fact]
@@ -154,6 +164,7 @@ namespace TwinCAT.JsonExtension.Tests
                 {
                     new DebugSubItem()
                     {
+                        InstanceName = variableName,
                         SubItemName = variableName,
                         Attributes = new ReadOnlyTypeAttributeCollection(new TypeAttributeCollection(new List<ITypeAttribute>() {new DebugAttribute("json", variableName)}))
                     }
@@ -161,7 +172,12 @@ namespace TwinCAT.JsonExtension.Tests
             };
             var arraySymbol = new DebugSymbol();
             var elementCount = 3;
-            arraySymbol.DataType = new DebugType() {Category = DataTypeCategory.Array, BaseType = new DebugType() {ManagedType = typeof(int)}, Dimensions = new ReadOnlyDimensionCollection(new DimensionCollection(new List<Dimension>() {new Dimension(0, elementCount)}))};
+            arraySymbol.DataType = new DebugType()
+            {
+                Category = DataTypeCategory.Array, 
+                BaseType = new DebugType() {ManagedType = typeof(int)}, Dimensions = new ReadOnlyDimensionCollection(new DimensionCollection(new List<Dimension>() {new Dimension(0, elementCount)})),
+                ElementType = new DebugType() {ManagedType = typeof(int)}
+            };
 
 
             var childSymbol = new DebugSymbol();
@@ -184,7 +200,7 @@ namespace TwinCAT.JsonExtension.Tests
 
             await clientMock.Object.WriteJson(originName, json);
 
-            clientMock.Verify(client => client.WriteValue(childSymbol, value), Times.Exactly(elementCount));
+            clientMock.Verify(client => client.WriteValue(childSymbol, It.Is<object>(v => v.ToString() == value.ToString())), Times.Exactly(elementCount));
         }
 
 

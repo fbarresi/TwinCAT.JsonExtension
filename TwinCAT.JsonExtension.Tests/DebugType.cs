@@ -61,7 +61,7 @@ namespace TwinCAT.JsonExtension.Tests
         }
 
         public IDimensionCollection Dimensions { get; set; }
-        public IDataType? ElementType { get; }
+        public IDataType? ElementType { get; set; }
         public string ElementTypeName { get; }
         public bool IsJagged { get; }
         public int JaggedLevel { get; }

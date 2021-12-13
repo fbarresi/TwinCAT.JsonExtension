@@ -17,7 +17,7 @@ namespace TwinCAT.JsonExtension.Tests
         public IDataType? DataType { get; set; }
         public string TypeName { get; }
         public string InstanceName { get; }
-        public string InstancePath { get; }
+        public string InstancePath => Name;
         public bool IsStatic { get; }
         public bool IsReference { get; }
         public bool IsPointer { get; }
