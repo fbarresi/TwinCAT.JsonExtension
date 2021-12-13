@@ -128,7 +128,8 @@ namespace TwinCAT.JsonExtension.Tests
             await clientMock.Object.WriteAsync(variableName, value);
 
             clientMock.Verify(client => client.ReadSymbol(variableName), Times.Once);
-            clientMock.Verify(client => client.WriteValue(symbol, value as object), Times.Once);
+            clientMock.Verify(client => client.WriteValue(symbol, 
+                It.Is<object>(o => o.ToString() == value.ToString())), Times.Once);
         }
     }
 }
