@@ -24,7 +24,13 @@ namespace TwinCAT.JsonExtension
                 var symbolInfo = client.ReadSymbol(variablePath);
                 var targetType = (symbolInfo.DataType as IManagedMappableType)?.ManagedType;
                 object targetValue;
-                if (targetType.Namespace == "TwinCAT.PlcOpen")
+
+                if (symbolInfo.DataType.Category == DataTypeCategory.Enum && value is JToken j && j.Type == JTokenType.String)
+                {
+                    var enumType = symbolInfo.DataType as IEnumType;
+                    targetValue = Convert.ChangeType(enumType.Parse(value.ToString()), targetType);
+                }
+                else if (targetType.Namespace == "TwinCAT.PlcOpen")
                 {
                     targetValue = value.TryConvertToPlcOpenType(targetType);
                 }
@@ -184,11 +190,18 @@ namespace TwinCAT.JsonExtension
         }
         
         public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, bool force, CancellationToken token)
+
+        public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, bool force, bool stringifyEnums)
         {
-            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), force:force), token);
+            return ReadJson(client, variablePath, force, stringifyEnums, CancellationToken.None);
         }
 
-        private static JObject ReadRecursive(IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool isChild = false, bool force = false)
+        public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, bool force, bool stringifyEnums, CancellationToken token)
+        {
+            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), force:force, stringifyEnums:stringifyEnums), token);
+        }
+
+        private static JObject ReadRecursive(IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool isChild = false, bool force = false, bool stringifyEnums = false)
         {
             var symbolInfo = client.ReadSymbol(variablePath);
             var dataType = symbolInfo.DataType;
@@ -207,7 +220,7 @@ namespace TwinCAT.JsonExtension
                         for (int i = arrayType.Dimensions.LowerBounds.First(); i <= arrayType.Dimensions.UpperBounds.First(); i++)
                         {
                             var child = new JObject();
-                            ReadRecursive(client, variablePath + $"[{i}]", child, jsonName, isChild:false, force:force);
+                            ReadRecursive(client, variablePath + $"[{i}]", child, jsonName, isChild:false, force:force, stringifyEnums:stringifyEnums);
                             if (child[jsonName] != null && dataType.Category == DataTypeCategory.Array)
                             {
                                 array.Add(child[jsonName]);
@@ -230,13 +243,26 @@ namespace TwinCAT.JsonExtension
                         {
                             if (HasJsonName(subItem, force))
                             {
-                                ReadRecursive(client, variablePath + "." + subItem.InstanceName, isChild ? child : parent, GetJsonName(subItem), isChild:true, force);
+                                ReadRecursive(client, variablePath + "." + subItem.InstanceName, isChild ? child : parent, GetJsonName(subItem), isChild:true, force:force, stringifyEnums:stringifyEnums);
                             }
                         }
                         if (isChild)
                         {
                             parent.Add(jsonName, child);
                         }
+                    }
+                }
+                else if(dataType.Category == DataTypeCategory.Enum)
+                {
+                    var obj = (Int16)client.ReadValue(symbolInfo);
+                    if (stringifyEnums)
+                    {
+                        var enumType = symbolInfo.DataType as IEnumType;
+                        parent.Add(jsonName, new JValue(enumType.ToString(obj)));
+                    }
+                    else
+                    {
+                        parent.Add(jsonName, new JValue(obj.TryConvertToDotNetManagedType()));
                     }
                 }
                 else
