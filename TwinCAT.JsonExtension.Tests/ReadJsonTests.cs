@@ -225,5 +225,22 @@ namespace TwinCAT.JsonExtension.Tests
             var json = await clientMock.Object.ReadJsonAsync(variableName);
             JToken.DeepEquals(json, expected).ShouldBeTrue();
         }
+
+        [Fact]
+        public async Task TestReadEnumStringified()
+        {
+            var tcAdsSymbol = new DebugSymbol();
+            var values = new EnumValueCollection<int>();
+            values.AddValue("Apple", 4);
+            values.AddValue("Banana", 10);
+            tcAdsSymbol.DataType = new EnumType<int>("TestEnum", new PrimitiveType("test", typeof(int)), values);
+            var value = 10;
+            var clientMock = TestReadWriteOperations.GetClientMock(tcAdsSymbol, value);
+            var variableName = "test";
+            var expected = new JObject();
+            expected.Add(variableName, "Banana");
+            var json = await clientMock.Object.ReadJsonAsync(variableName, force: true, stringifyEnums: true);
+            JToken.DeepEquals(json, expected).ShouldBeTrue();
+        }
     }
 }
