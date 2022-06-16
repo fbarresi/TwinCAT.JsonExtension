@@ -37,20 +37,72 @@ into this (and back) **recursively** and absolutely **type-independent**:
 }
 ```
 
-only calling this two extension methods on your connected `TcAdsClient`:
+only calling this two extension methods on your connected `AdsClient`:
 ```csharp
-var json = await client.ReadJson("GVL.JsonDutVariable")
+var json = await client.ReadJsonAsync("GVL.JsonDutVariable")
 ```
 
 ```csharp
-await client.WriteJson("GVL.JsonDutVariable", json);
+await client.WriteJsonAsync("GVL.JsonDutVariable", json);
+```
+
+### Options
+#### Progress indication
+For lengthy operations, a progress indiciator can be used to give some feedback about how many variables have already been read or written, respectively.
+
+```csharp
+int objects = 0;
+var progress = new Progress<int>();
+progress.ProgressChanged += (sender, args) => { objects++; Console.CursorLeft = 0; Console.Write(objects); };
+
+await client.ReadJsonAsync("GVL.JsonDutVariable", progress: progress);
+await client.WriteJsonAsync("GVL.JsonDutVariable", json, progress: progress);
+```
+
+#### Enumeration stringify
+Values of enumerations are by default started as integer values. However, sometimes it is beneficial to store said values as strings. This can be achieved by
+the `stringify` parameter.
+
+```csharp
+await client.ReadJsonAsync("GVL.JsonDutVariable", stringifyEnums: true);
+```
+
+
+#### Read/Write without json attribute
+The attributes mentioned above are optional when using this library. The following example achieves a similar result. The only difference
+is the instance names in the generated json file.
+
+```reStructuredText
+TYPE JsonDUT :
+STRUCT
+	sMessage : STRING := 'test';
+	iResponse : INT;
+	sStatus : STRING := 'success';
+	daNumbers : ARRAY[1..3] OF DINT := [1,2,3];
+END_STRUCT
+END_TYPE
+```
+yields
+
+```javascript
+{
+  "sMessage": "test",
+  "iResponse" : 0,
+  "sStatus": "success",
+  "daNumbers" : [1,2,3]
+}
+```
+
+by calling the ReadJsonAsync method on your connected `AdsClient`
+```csharp
+var json = await client.ReadJsonAsync("GVL.JsonDutVariable", force: true);
 ```
 
 Have fun using this simple package and don't forget to **star this project**!
 
 ## Referenced projects
 
-Whould you like to see the power of **TwinCAT.JsonExtension** in action?
+Would you like to see the power of **TwinCAT.JsonExtension** in action?
 
 Then checkout [BeckhoffHttpClient](https://github.com/fbarresi/BeckhoffHttpClient), an _unofficial_ TwinCAT function for HTTP requests
 
