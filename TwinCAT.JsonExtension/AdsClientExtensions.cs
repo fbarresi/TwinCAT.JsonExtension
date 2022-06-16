@@ -255,11 +255,11 @@ namespace TwinCAT.JsonExtension
                 }
                 else if(dataType.Category == DataTypeCategory.Enum)
                 {
-                    var obj = (Int16)client.ReadValue(symbolInfo);
+                    var obj = client.ReadValue(symbolInfo);
                     if (stringifyEnums)
                     {
                         var enumType = symbolInfo.DataType as IEnumType;
-                        parent.Add(jsonName, new JValue(enumType.ToString(obj)));
+                        parent.Add(jsonName, new JValue(enumType.ToString((IConvertible)obj)));
                     }
                     else
                     {
