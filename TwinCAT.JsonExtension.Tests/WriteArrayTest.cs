@@ -47,7 +47,7 @@ namespace TwinCAT.JsonExtension.Tests
 
             var array = new JArray(Enumerable.Repeat(value, elementCount));
 
-            await clientMock.Object.WriteJson(originName, array);
+            await clientMock.Object.WriteJsonAsync(originName, array);
 
             clientMock.Verify(client => client.WriteValue(childSymbol, It.Is<object>(v => int.Parse(v.ToString()) == value)), Times.Exactly(elementCount));
         }
@@ -77,7 +77,7 @@ namespace TwinCAT.JsonExtension.Tests
 
             var array = new JArray(Enumerable.Repeat(value, elementCount));
 
-            await clientMock.Object.WriteJson(originName+"[0]", array).ShouldThrowAsync(typeof(InvalidOperationException));
+            await clientMock.Object.WriteJsonAsync(originName+"[0]", array).ShouldThrowAsync(typeof(InvalidOperationException));
 
             clientMock.Verify(client => client.WriteValue(childSymbol, value), Times.Never);
         }
@@ -157,7 +157,7 @@ namespace TwinCAT.JsonExtension.Tests
             complex.Add(innerVariableName, child);
             var array = new JArray(Enumerable.Repeat(complex, elementCount));
 
-            await clientMock.Object.WriteJson(variableName, array);
+            await clientMock.Object.WriteJsonAsync(variableName, array);
 
             clientMock.Verify(client => client.WriteValue(childSymbol, It.Is<object>(v => int.Parse(v.ToString()) == value)), Times.Exactly(elementCount));
 

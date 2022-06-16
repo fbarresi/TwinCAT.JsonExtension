@@ -25,7 +25,7 @@ namespace TwinCAT.JsonExtension.Tests
             var variableName = "test";
             var expected = new JObject();
             expected.Add(variableName, value);
-            var json = await clientMock.Object.ReadJson(variableName);
+            var json = await clientMock.Object.ReadJsonAsync(variableName);
             JToken.DeepEquals(json, expected).ShouldBeTrue();
         }
 
@@ -40,7 +40,7 @@ namespace TwinCAT.JsonExtension.Tests
             var variableName = "test";
             var expected = new JObject();
             expected.Add(variableName, new JArray(value));
-            var json = await clientMock.Object.ReadJson(variableName);
+            var json = await clientMock.Object.ReadJsonAsync(variableName);
             JToken.DeepEquals(json, expected).ShouldBeTrue();
         }
         
@@ -58,7 +58,7 @@ namespace TwinCAT.JsonExtension.Tests
             var variableName = "test";
             var expected = new JObject();
             expected.Add(variableName, new JArray(new JArray(value[0]), new JArray(value[1])));
-            var json = await clientMock.Object.ReadJson(variableName);
+            var json = await clientMock.Object.ReadJsonAsync(variableName);
             JToken.DeepEquals(json, expected).ShouldBeTrue();
         }
 
@@ -97,7 +97,7 @@ namespace TwinCAT.JsonExtension.Tests
             var expected = new JObject();
             expected.Add(innerVariableName, value);
 
-            var json = await clientMock.Object.ReadJson(variableName);
+            var json = await clientMock.Object.ReadJsonAsync(variableName);
             JToken.DeepEquals(json, expected).ShouldBeTrue();
         }
 
@@ -155,7 +155,7 @@ namespace TwinCAT.JsonExtension.Tests
             child.Add(secondInnerVariableName, value);
             expected.Add(innerVariableName, child);
 
-            var json = await clientMock.Object.ReadJson(variableName);
+            var json = await clientMock.Object.ReadJsonAsync(variableName);
             JToken.DeepEquals(json, expected).ShouldBeTrue();
         }
 
@@ -222,7 +222,7 @@ namespace TwinCAT.JsonExtension.Tests
             complex.Add(innerVariableName, child);
             expected.Add(variableName, new JArray(Enumerable.Repeat(complex, elementCount)));
 
-            var json = await clientMock.Object.ReadJson(variableName);
+            var json = await clientMock.Object.ReadJsonAsync(variableName);
             JToken.DeepEquals(json, expected).ShouldBeTrue();
         }
     }
