@@ -39,11 +39,11 @@ into this (and back) **recursively** and absolutely **type-independent**:
 
 only calling this two extension methods on your connected `AdsClient`:
 ```csharp
-var json = await client.ReadJsonAsync("GVL.JsonDutVariable")
+var json = await client.ReadJson("GVL.JsonDutVariable")
 ```
 
 ```csharp
-await client.WriteJsonAsync("GVL.JsonDutVariable", json);
+await client.WriteJson("GVL.JsonDutVariable", json);
 ```
 
 ### Options
@@ -55,8 +55,8 @@ int objects = 0;
 var progress = new Progress<int>();
 progress.ProgressChanged += (sender, args) => { objects++; Console.CursorLeft = 0; Console.Write(objects); };
 
-await client.ReadJsonAsync("GVL.JsonDutVariable", progress: progress);
-await client.WriteJsonAsync("GVL.JsonDutVariable", json, progress: progress);
+await client.ReadJson("GVL.JsonDutVariable", progress: progress);
+await client.WriteJson("GVL.JsonDutVariable", json, progress: progress);
 ```
 
 #### Enumeration stringify
@@ -64,7 +64,7 @@ Values of enumerations are by default started as integer values. However, someti
 the `stringify` parameter.
 
 ```csharp
-await client.ReadJsonAsync("GVL.JsonDutVariable", stringifyEnums: true);
+await client.ReadJson("GVL.JsonDutVariable", stringifyEnums: true);
 ```
 
 
@@ -95,7 +95,7 @@ yields
 
 by calling the ReadJsonAsync method on your connected `AdsClient`
 ```csharp
-var json = await client.ReadJsonAsync("GVL.JsonDutVariable", force: true);
+var json = await client.ReadJson("GVL.JsonDutVariable", force: true);
 ```
 
 Have fun using this simple package and don't forget to **star this project**!

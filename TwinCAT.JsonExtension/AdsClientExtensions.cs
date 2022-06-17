@@ -62,47 +62,47 @@ namespace TwinCAT.JsonExtension
             }, token);
         }
 
-        public static Task WriteJsonAsync(this IAdsSymbolicAccess client, string variablePath, JArray array, CancellationToken token, IProgress<int> progress = null)
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JArray array, CancellationToken token, IProgress<int> progress = null)
         {
-            return WriteJsonAsync(client, variablePath, array, false, token, progress);
+            return WriteJson(client, variablePath, array, false, token, progress);
         }
         
-        public static Task WriteJsonAsync(this IAdsSymbolicAccess client, string variablePath, JArray array, IProgress<int> progress = null)
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JArray array, IProgress<int> progress = null)
         {
-            return WriteJsonAsync(client, variablePath, array, false, CancellationToken.None, progress);
+            return WriteJson(client, variablePath, array, false, CancellationToken.None, progress);
         }
         
-        public static Task WriteJsonAsync(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force, IProgress<int> progress = null)
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force, IProgress<int> progress = null)
         {
-            return WriteArrayAsync(client, variablePath, array, force, CancellationToken.None, progress);
+            return WriteArray(client, variablePath, array, force, CancellationToken.None, progress);
         }
         
-        public static Task WriteJsonAsync(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force, CancellationToken token, IProgress<int> progress = null)
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force, CancellationToken token, IProgress<int> progress = null)
         {
-            return WriteArrayAsync(client, variablePath, array, force, token, progress);
+            return WriteArray(client, variablePath, array, force, token, progress);
         }
         
-        public static Task WriteJsonAsync(this IAdsSymbolicAccess client, string variablePath, JObject obj, IProgress<int> progress = null)
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JObject obj, IProgress<int> progress = null)
         {
-            return WriteJsonAsync(client, variablePath, obj, false, CancellationToken.None, progress);
+            return WriteJson(client, variablePath, obj, false, CancellationToken.None, progress);
         }
         
-        public static Task WriteJsonAsync(this IAdsSymbolicAccess client, string variablePath, JObject obj, CancellationToken token, IProgress<int> progress = null)
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JObject obj, CancellationToken token, IProgress<int> progress = null)
         {
-            return WriteJsonAsync(client, variablePath, obj, false, token, progress);
+            return WriteJson(client, variablePath, obj, false, token, progress);
         }
         
-        public static Task WriteJsonAsync(this IAdsSymbolicAccess client, string variablePath, JObject obj, bool force, IProgress<int> progress = null)
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JObject obj, bool force, IProgress<int> progress = null)
         {
-            return WriteRecursiveAsync(client, variablePath, obj, string.Empty, force, CancellationToken.None, progress);
+            return WriteRecursive(client, variablePath, obj, string.Empty, force, CancellationToken.None, progress);
         }
         
-        public static Task WriteJsonAsync(this IAdsSymbolicAccess client, string variablePath, JObject obj, bool force, CancellationToken token, IProgress<int> progress = null)
+        public static Task WriteJson(this IAdsSymbolicAccess client, string variablePath, JObject obj, bool force, CancellationToken token, IProgress<int> progress = null)
         {
-            return WriteRecursiveAsync(client, variablePath, obj, string.Empty, force, token, progress);
+            return WriteRecursive(client, variablePath, obj, string.Empty, force, token, progress);
         }
 
-        private static async Task WriteArrayAsync(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force, CancellationToken token, IProgress<int> progress = null)
+        private static async Task WriteArray(this IAdsSymbolicAccess client, string variablePath, JArray array, bool force, CancellationToken token, IProgress<int> progress = null)
         {
             var symbolInfo = client.ReadSymbol(variablePath);
             var dataType = symbolInfo.DataType as IArrayType;
@@ -121,16 +121,16 @@ namespace TwinCAT.JsonExtension
                 }
                 else if (dataType.ElementType?.Category == DataTypeCategory.Array)
                 {
-                    await WriteArrayAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i] as JArray, force, token, progress).ConfigureAwait(false);
+                    await WriteArray(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i] as JArray, force, token, progress).ConfigureAwait(false);
                 }
                 else
                 {
-                    await WriteRecursiveAsync(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i] as JObject, string.Empty, force, token, progress).ConfigureAwait(false);
+                    await WriteRecursive(client, variablePath + $"[{i + dataType.Dimensions.LowerBounds.First()}]", array[i] as JObject, string.Empty, force, token, progress).ConfigureAwait(false);
                 }
             }
         }
         
-        private static async Task WriteRecursiveAsync(this IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool force, CancellationToken token, IProgress<int> progress = null)
+        private static async Task WriteRecursive(this IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool force, CancellationToken token, IProgress<int> progress = null)
         {
             var symbolInfo = client.ReadSymbol(variablePath);
             var dataType = symbolInfo.DataType;
@@ -148,7 +148,7 @@ namespace TwinCAT.JsonExtension
                         }
                         else
                         {
-                            await WriteRecursiveAsync(client, variablePath + $"[{i + arrayType.Dimensions.LowerBounds.First()}]", parent, jsonName + $"[{i}]", force, token, progress).ConfigureAwait(false);
+                            await WriteRecursive(client, variablePath + $"[{i + arrayType.Dimensions.LowerBounds.First()}]", parent, jsonName + $"[{i}]", force, token, progress).ConfigureAwait(false);
                         }
                     }
                 }
@@ -161,7 +161,7 @@ namespace TwinCAT.JsonExtension
                         {
                             if (HasJsonName(subItem, force))
                             {
-                                await WriteRecursiveAsync(client, variablePath + "." + subItem.InstanceName, parent, string.IsNullOrEmpty(jsonName) ? GetJsonName(subItem) : jsonName + "." + GetJsonName(subItem), force, token, progress).ConfigureAwait(false); ;
+                                await WriteRecursive(client, variablePath + "." + subItem.InstanceName, parent, string.IsNullOrEmpty(jsonName) ? GetJsonName(subItem) : jsonName + "." + GetJsonName(subItem), force, token, progress).ConfigureAwait(false); ;
                             }
                         }
                     }
@@ -177,27 +177,27 @@ namespace TwinCAT.JsonExtension
             }
         }
         
-        public static Task<JObject> ReadJsonAsync(this IAdsSymbolicAccess client, string variablePath, IProgress<int> progress = null)
+        public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, IProgress<int> progress = null)
         {
-            return ReadJsonAsync(client, variablePath, false, false, CancellationToken.None, progress);
+            return ReadJson(client, variablePath, false, false, CancellationToken.None, progress);
         }
         
-        public static Task<JObject> ReadJsonAsync(this IAdsSymbolicAccess client, string variablePath, CancellationToken token, IProgress<int> progress = null)
+        public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, CancellationToken token, IProgress<int> progress = null)
         {
-            return ReadJsonAsync(client, variablePath, false, false, token, progress);
+            return ReadJson(client, variablePath, false, false, token, progress);
         }
         
-        public static Task<JObject> ReadJsonAsync(this IAdsSymbolicAccess client, string variablePath, bool force, IProgress<int> progress = null)
+        public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, bool force, IProgress<int> progress = null)
         {
-            return ReadJsonAsync(client, variablePath, force, false, CancellationToken.None, progress);
+            return ReadJson(client, variablePath, force, false, CancellationToken.None, progress);
         }
 
-        public static Task<JObject> ReadJsonAsync(this IAdsSymbolicAccess client, string variablePath, bool force, bool stringifyEnums, IProgress<int> progress = null)
+        public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, bool force, bool stringifyEnums, IProgress<int> progress = null)
         {
-            return ReadJsonAsync(client, variablePath, force, stringifyEnums, CancellationToken.None, progress);
+            return ReadJson(client, variablePath, force, stringifyEnums, CancellationToken.None, progress);
         }
 
-        public static Task<JObject> ReadJsonAsync(this IAdsSymbolicAccess client, string variablePath, bool force, bool stringifyEnums, CancellationToken token, IProgress<int> progress = null)
+        public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, bool force, bool stringifyEnums, CancellationToken token, IProgress<int> progress = null)
         {
             return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), force:force, stringifyEnums:stringifyEnums, progress:progress), token);
         }
