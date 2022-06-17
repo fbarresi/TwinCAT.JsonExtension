@@ -48,23 +48,25 @@ await client.WriteJson("GVL.JsonDutVariable", json);
 
 ### Options
 #### Progress indication
-For lengthy operations, a progress indiciator can be used to give some feedback about how many variables have already been read or written, respectively.
+For lengthy operations, a progress indiciator can be used to give some feedback about the current progress. By passing a `Progress<int>` object as parameter to `ReadJson` or `WriteJson` it is possible to count the total number of primitive types (INT, DINT, REAL, ...) that were read or written to the PLC, respectively.
 
 ```csharp
 int objects = 0;
 var progress = new Progress<int>();
 progress.ProgressChanged += (sender, args) => { objects++; Console.CursorLeft = 0; Console.Write(objects); };
 
+Console.WriteLine("Primitives read from PLC");
 await client.ReadJson("GVL.JsonDutVariable", progress: progress);
+
+Console.WriteLine("\nPrimitives written to  PLC");
 await client.WriteJson("GVL.JsonDutVariable", json, progress: progress);
 ```
 
 #### Enumeration stringify
-Values of enumerations are by default started as integer values. However, sometimes it is beneficial to store said values as strings. This can be achieved by
-the `stringify` parameter.
+Values of enumerations are by default started as integer values. However, sometimes it is beneficial to store said values as strings. This can be achieved by the `stringify` parameter.
 
 ```csharp
-await client.ReadJson("GVL.JsonDutVariable", stringifyEnums: true);
+await client.ReadJson("GVL.JsonDutVariable", force: true, stringifyEnums: true);
 ```
 
 
