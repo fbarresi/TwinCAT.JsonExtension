@@ -199,7 +199,7 @@ namespace TwinCAT.JsonExtension
 
         public static Task<JObject> ReadJson(this IAdsSymbolicAccess client, string variablePath, bool force, bool stringifyEnums, CancellationToken token, IProgress<int> progress = null)
         {
-            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVaribleNameFromFullPath(variablePath), force:force, stringifyEnums:stringifyEnums, progress:progress), token);
+            return Task.Run(() => ReadRecursive(client, variablePath, new JObject(), GetVariableNameFromFullPath(variablePath), force:force, stringifyEnums:stringifyEnums, progress:progress), token);
         }
 
         private static JObject ReadRecursive(IAdsSymbolicAccess client, string variablePath, JObject parent, string jsonName, bool isChild = false, bool force = false, bool stringifyEnums = false, IProgress<int> progress = null)
@@ -282,7 +282,7 @@ namespace TwinCAT.JsonExtension
             return parent;
         }
 
-        public static string GetVaribleNameFromFullPath(this string variablePath)
+        public static string GetVariableNameFromFullPath(this string variablePath)
         {
             return variablePath.Split(new[] {'.'}, StringSplitOptions.RemoveEmptyEntries).Last();
         }
@@ -290,7 +290,7 @@ namespace TwinCAT.JsonExtension
         public static string GetJsonName(this IAttributedInstance dataType)
         {
             var jsonName = dataType.Attributes.FirstOrDefault(attribute => attribute.Name.Equals("json", StringComparison.InvariantCultureIgnoreCase))?.Value;
-            return string.IsNullOrEmpty(jsonName) ? GetVaribleNameFromFullPath(dataType.InstanceName) : jsonName;
+            return string.IsNullOrEmpty(jsonName) ? GetVariableNameFromFullPath(dataType.InstanceName) : jsonName;
         }
 
         public static bool HasJsonName(this IAttributedInstance subItem, bool force)
