@@ -1,32 +1,28 @@
+using System.Reactive;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TwinCAT.JsonService.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class WeatherForecastController : ControllerBase
+public class VariablesController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+    private readonly ILogger<VariablesController> logger;
 
-    private readonly ILogger<WeatherForecastController> _logger;
-
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public VariablesController(ILogger<VariablesController> logger)
     {
-        _logger = logger;
+        this.logger = logger;
     }
 
-    [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
+    [HttpGet]
+    public Task<object> Get()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+        return Task.FromResult<object>(new {Name = "Test", Variable = "1"});
+    }
+    
+    [HttpPost]
+    public Task Set()
+    {
+        return Task.FromResult(Unit.Default);
     }
 }
