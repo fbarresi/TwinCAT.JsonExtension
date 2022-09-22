@@ -1,6 +1,16 @@
-﻿namespace TwinCAT.JsonService.Interfaces;
+﻿using TwinCAT.Ads;
+using TwinCAT.TypeSystem;
 
-public class IClientService
+namespace TwinCAT.JsonService.Interfaces;
+
+public interface IClientService
 {
-    
+    Task Connect(string amsNetId, int port);
+    AdsClient Client { get; }
+    IObservable<ConnectionState> ConnectionState { get; }
+    IObservable<string> AdsState { get; }
+    ISymbolCollection<ISymbol> TreeViewSymbols { get; }
+    ISymbolCollection<ISymbol> FlatViewSymbols { get; }
+    Task Reload();
+    Task Disconnect();
 }

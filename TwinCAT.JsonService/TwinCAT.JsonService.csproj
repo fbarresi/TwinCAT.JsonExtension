@@ -7,7 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3"/>
+        <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="5.0.492" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+        <PackageReference Include="System.Reactive" Version="5.0.0" />
     </ItemGroup>
 
 </Project>

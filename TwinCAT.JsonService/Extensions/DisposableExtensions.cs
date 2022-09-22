@@ -1,8 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Reactive.Disposables;
+﻿using System.Reactive.Disposables;
 
-namespace TwinCatAdsTool.Interfaces.Extensions
+namespace TwinCAT.JsonService.Extensions
 {
 	public static class DisposableExtensions
 	{
