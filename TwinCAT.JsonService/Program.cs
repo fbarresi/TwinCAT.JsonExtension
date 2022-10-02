@@ -1,6 +1,20 @@
 using Microsoft.OpenApi.Models;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var loggingDirectory = builder.Configuration.GetValue(typeof(string), "LoggingDirectory") as string ?? "";
+
+builder.Host
+    .UseSerilog((ctx, lc) => 
+        lc
+            .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .WriteTo.File(Path.Combine(loggingDirectory,"logs","TwincatJsonService-.log"), 
+                rollingInterval: RollingInterval.Day, 
+                retainedFileTimeLimit: TimeSpan.FromDays(30), 
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    );
+
 
 // Add services to the container.
 
