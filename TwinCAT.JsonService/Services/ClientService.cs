@@ -1,6 +1,4 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using System.Reactive;
+﻿using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -8,19 +6,22 @@ using TwinCAT.Ads;
 using TwinCAT.Ads.TypeSystem;
 using TwinCAT.JsonService.Extensions;
 using TwinCAT.JsonService.Interfaces;
+using TwinCAT.JsonService.Settings;
 using TwinCAT.TypeSystem;
 
 namespace TwinCAT.JsonService.Services
 {
-    public class ClientService : IClientService, IDisposable
+    public class ClientService : BackgroundService, IClientService, IDisposable
     {
         private readonly ILogger<ClientService> logger;
+        private readonly BeckhoffClientSettings settings;
         private readonly BehaviorSubject<ConnectionState> connectionStateSubject = new BehaviorSubject<ConnectionState>(TwinCAT.ConnectionState.None);
         private readonly CompositeDisposable disposables = new CompositeDisposable();
         private readonly BehaviorSubject<string> adsStateSubject = new BehaviorSubject<string>(TwinCAT.Ads.AdsState.Idle.ToString());
-        public ClientService(ILogger<ClientService> logger)
+        public ClientService(ILogger<ClientService> logger, BeckhoffClientSettings settings)
         {
             this.logger = logger;
+            this.settings = settings;
             Client = new AdsClient();
         }
 
@@ -87,8 +88,6 @@ namespace TwinCAT.JsonService.Services
                 .Subscribe()
                 .AddDisposableTo(disposables);
             
-            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-
         }
 
         private void UpdateSymbols(ConnectionState state)
@@ -138,9 +137,21 @@ namespace TwinCAT.JsonService.Services
 
         public void Dispose()
         {
-            Client.Disconnect();
+            Client?.Disconnect();
             Client?.Dispose();
             disposables?.Dispose();
+        }
+
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            return Task.Delay(-1, stoppingToken);
+        }
+
+        public override async Task StartAsync(CancellationToken cancellationToken)
+        {
+            Initialize();
+            await Connect(settings.AmsNetId, settings.Port);
+            await base.StartAsync(cancellationToken);
         }
     }
 }
