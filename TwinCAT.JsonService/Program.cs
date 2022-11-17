@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using TwinCAT.JsonService.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,13 @@ builder.Host
                 retainedFileTimeLimit: TimeSpan.FromDays(30), 
                 outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
     );
+
+//Configs
+builder.Services.AddOptions<BeckhoffClientSettings>()
+    .BindConfiguration("BeckhoffClientSettings") // 👈 Bind the section
+    .ValidateDataAnnotations() // 👈 Enable validation
+    .ValidateOnStart(); // 👈 Validate on app start
+builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<BeckhoffClientSettings>>().Value); //use scoped for auto reload
 
 
 // Add services to the container.
