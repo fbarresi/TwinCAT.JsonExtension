@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using TwinCAT.JsonService.Interfaces;
+using TwinCAT.JsonService.Services;
 using TwinCAT.JsonService.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +28,12 @@ builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<B
 
 
 // Add services to the container.
+builder.Services.AddSingleton<ClientService>();
+builder.Services.AddSingleton<IHostedService, ClientService>(
+    serviceProvider => serviceProvider.GetService<ClientService>());
+builder.Services.AddSingleton<IClientService, ClientService>(
+    serviceProvider => serviceProvider.GetService<ClientService>());
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -53,15 +61,12 @@ builder.Services.AddSwaggerGen(options => {
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-        options.RoutePrefix = string.Empty;
-    });
-}
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    options.RoutePrefix = string.Empty;
+});
 
 app.UseHttpsRedirection();
 
