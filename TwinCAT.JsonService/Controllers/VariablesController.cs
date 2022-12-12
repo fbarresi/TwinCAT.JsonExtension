@@ -1,5 +1,8 @@
 using System.Reactive;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using TwinCAT.JsonExtension;
+using TwinCAT.JsonService.Interfaces;
 
 namespace TwinCAT.JsonService.Controllers;
 
@@ -8,21 +11,34 @@ namespace TwinCAT.JsonService.Controllers;
 public class VariablesController : ControllerBase
 {
     private readonly ILogger<VariablesController> logger;
+    private readonly IClientService _clientService;
 
-    public VariablesController(ILogger<VariablesController> logger)
+    public VariablesController(ILogger<VariablesController> logger, IClientService clientService)
     {
         this.logger = logger;
+        _clientService = clientService;
     }
 
     [HttpGet]
-    public Task<object> Get()
+    [Route("{name}")]
+    public async Task<object> Get(string name)
     {
-        return Task.FromResult<object>(new {Name = "Test", Variable = "1"});
+        return await _clientService.Client.ReadJson(name, force: true);
     }
     
     [HttpPost]
-    public Task Set()
+    [Route("{name}")]
+    public async Task Set(string name, object value)
     {
-        return Task.FromResult(Unit.Default);
+        var json = new JObject(value);
+        await _clientService.Client.WriteJson(name, json, force: true);
+    }
+    
+    [HttpPost]
+    [Route("list/{name}")]
+    public async Task Set(string name, IEnumerable<object> value)
+    {
+        var json = new JArray(value);
+        await _clientService.Client.WriteJson(name, json, force: true);
     }
 }
