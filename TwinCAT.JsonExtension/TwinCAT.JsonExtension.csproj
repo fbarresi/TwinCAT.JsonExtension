@@ -18,6 +18,6 @@
 
   <ItemGroup>
     <PackageReference Include="Beckhoff.TwinCAT.Ads" Version="5.0.492" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 </Project>
