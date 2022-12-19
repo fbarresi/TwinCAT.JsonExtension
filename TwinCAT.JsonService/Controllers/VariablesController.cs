@@ -21,9 +21,9 @@ public class VariablesController : ControllerBase
 
     [HttpGet]
     [Route("{name}")]
-    public async Task<object> Get(string name)
+    public async Task<object> Get(string name, [FromQuery]bool enumsToString = false)
     {
-        return await _clientService.Client.ReadJson(name, force: true);
+        return await _clientService.Client.ReadJson(name, force: true, stringifyEnums: enumsToString);
     }
     
     [HttpPost]
