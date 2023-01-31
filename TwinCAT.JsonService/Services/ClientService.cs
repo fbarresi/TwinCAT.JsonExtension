@@ -32,6 +32,7 @@ namespace TwinCAT.JsonService.Services
         
         public Task Connect(string amsNetId, int port)
         {
+            logger.LogInformation("Connecting client to {AmsNetId}:{Port} ...", amsNetId, port);
             CurrentPort = port;
             CurrentAmsNetId = amsNetId;
             if (!Client.IsConnected)
@@ -45,6 +46,7 @@ namespace TwinCAT.JsonService.Services
                     Client.Connect(amsNetId, port);
                 }
             }
+            logger.LogInformation("Connection started!");
 
             ConnectionStarted = true;
             return Task.FromResult(Unit.Default);
@@ -62,9 +64,12 @@ namespace TwinCAT.JsonService.Services
 
         public Task Disconnect()
         {
+            logger.LogInformation("Disconnecting client...");
+
             Client.Disconnect();
             ConnectionStarted = false;
             adsStateSubject.OnNext(TwinCAT.Ads.AdsState.Idle.ToString());
+            logger.LogInformation("Client disconnected");
             return Task.FromResult(Unit.Default);
         }
 
@@ -87,13 +92,21 @@ namespace TwinCAT.JsonService.Services
                 .Do(_ => CheckConnectionHealth())
                 .Subscribe()
                 .AddDisposableTo(disposables);
-            
+
+            adsStateSubject
+                .DistinctUntilChanged()
+                .Do(state => logger.LogInformation("AdsState changed to: {State}", state))
+                .Subscribe()
+                .AddDisposableTo(disposables)
+                ;
+
         }
 
         private void UpdateSymbols(ConnectionState state)
         {
             if (state == TwinCAT.ConnectionState.Connected)
             {
+                logger.LogInformation("Reloading symbols after connection");
                 var loader = SymbolLoaderFactory.Create(Client, new SymbolLoaderSettings(SymbolsLoadMode.VirtualTree));
                 TreeViewSymbols = loader.Symbols;
 
