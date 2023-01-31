@@ -11,19 +11,19 @@ namespace TwinCAT.JsonService.Controllers;
 public class VariablesController : ControllerBase
 {
     private readonly ILogger<VariablesController> logger;
-    private readonly IClientService _clientService;
+    private readonly IClientService clientService;
 
     public VariablesController(ILogger<VariablesController> logger, IClientService clientService)
     {
         this.logger = logger;
-        _clientService = clientService;
+        this.clientService = clientService;
     }
 
     [HttpGet]
     [Route("{name}")]
     public async Task<object> Get(string name, [FromQuery]bool enumsToString = false)
     {
-        return await _clientService.Client.ReadJson(name, force: true, stringifyEnums: enumsToString);
+        return await clientService.Client.ReadJson(name, force: true, stringifyEnums: enumsToString);
     }
     
     [HttpPost]
@@ -31,7 +31,7 @@ public class VariablesController : ControllerBase
     public async Task Set(string name, object value)
     {
         var json = new JObject(value);
-        await _clientService.Client.WriteJson(name, json, force: true);
+        await clientService.Client.WriteJson(name, json, force: true);
     }
     
     [HttpPost]
@@ -39,6 +39,6 @@ public class VariablesController : ControllerBase
     public async Task Set(string name, IEnumerable<object> value)
     {
         var json = new JArray(value);
-        await _clientService.Client.WriteJson(name, json, force: true);
+        await clientService.Client.WriteJson(name, json, force: true);
     }
 }
