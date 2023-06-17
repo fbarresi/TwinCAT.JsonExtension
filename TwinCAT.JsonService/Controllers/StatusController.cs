@@ -27,4 +27,11 @@ public class StatusController : ControllerBase
     {
         return clientService.AdsState.FirstAsync().ToTask();
     }
+
+    [HttpGet]
+    [Route("info")]
+    public Task<string> GetPlcInfo()
+    {
+        return Task.FromResult(clientService.Client.Address.ToString());
+    }
 }
