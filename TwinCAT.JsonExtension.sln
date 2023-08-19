@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwinCAT.JsonExtension.Tests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwinCAT.JsonService", "TwinCAT.JsonService\TwinCAT.JsonService.csproj", "{46F79217-ED70-4C52-81B5-B5E946B448A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TwinCAT.JsonService.Tests", "TwinCAT.JsonService.Tests\TwinCAT.JsonService.Tests.csproj", "{AF3589F0-1BE2-4187-88A1-589B7E50AB55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{46F79217-ED70-4C52-81B5-B5E946B448A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46F79217-ED70-4C52-81B5-B5E946B448A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46F79217-ED70-4C52-81B5-B5E946B448A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF3589F0-1BE2-4187-88A1-589B7E50AB55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF3589F0-1BE2-4187-88A1-589B7E50AB55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF3589F0-1BE2-4187-88A1-589B7E50AB55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF3589F0-1BE2-4187-88A1-589B7E50AB55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
