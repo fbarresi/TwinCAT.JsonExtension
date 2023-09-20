@@ -7,7 +7,7 @@ using TwinCAT.TypeSystem;
 
 namespace TwinCAT.JsonExtension.Tests
 {
-    internal class DebugSymbol : IAdsSymbol
+    public class DebugSymbol : IAdsSymbol
     {
         public int Size { get; }
         public bool IsBitType { get; }

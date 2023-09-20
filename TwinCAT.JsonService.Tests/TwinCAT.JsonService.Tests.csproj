@@ -16,9 +16,11 @@
         <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
         <PackageReference Include="NUnit.Analyzers" Version="3.3.0" />
         <PackageReference Include="coverlet.collector" Version="3.1.2" />
+        <PackageReference Include="Shouldly" Version="4.2.1" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\TwinCAT.JsonExtension.Tests\TwinCAT.JsonExtension.Tests.csproj" />
       <ProjectReference Include="..\TwinCAT.JsonService\TwinCAT.JsonService.csproj" />
     </ItemGroup>
 
