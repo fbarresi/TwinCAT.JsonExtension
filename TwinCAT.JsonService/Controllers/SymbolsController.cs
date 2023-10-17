@@ -33,14 +33,14 @@ public class SymbolsController : ControllerBase
     
     [HttpPost]
     [Route("get/{path}")]
-    public Task<IEnumerable<ISymbol>> StartingWith(string path)
+    public Task<IEnumerable<ISymbol>> GetByInstancePath(string path)
     {
         return Task.FromResult(clientService.FlatViewSymbols.Where(s => s.InstancePath.StartsWith(path)));
     }
     
     [HttpPost]
     [Route("query/{path}")]
-    public Task<IEnumerable<ISymbol>> query(string name)
+    public Task<IEnumerable<ISymbol>> QueryInstancePath(string name)
     {
         return Task.FromResult(clientService.FlatViewSymbols.Where(s => s.InstancePath.Contains(name)));
     }

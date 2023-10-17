@@ -13,18 +13,20 @@ public class TestSymbolsController
 {
     private Mock<ILogger<SymbolsController>> logger;
     private Mock<IClientService> clientService;
+    private SymbolsController controller;
 
     [SetUp]
     public void Setup()
     {
         logger = new Mock<ILogger<SymbolsController>>();
         clientService = new Mock<IClientService>();
+        controller = new SymbolsController(logger.Object, clientService.Object);
+
     }
 
     [Test]
     public async Task TestGetTree()
     {
-        var controller = new SymbolsController(logger.Object, clientService.Object);
         await controller.GetTree();
         
         clientService.Verify(s => s.TreeViewSymbols, Times.Once);
@@ -33,7 +35,6 @@ public class TestSymbolsController
     [Test]
     public async Task TestGetFlat()
     {
-        var controller = new SymbolsController(logger.Object, clientService.Object);
         await controller.GetFlat();
         
         clientService.Verify(s => s.FlatViewSymbols, Times.Once);
@@ -46,11 +47,22 @@ public class TestSymbolsController
             .Returns(new SymbolCollection() { new DebugSymbol() {Name = "test01"} })
             ;
         
-        var controller = new SymbolsController(logger.Object, clientService.Object);
-        var symbols = await controller.StartingWith("test");
+        var symbols = await controller.GetByInstancePath("test");
 
         clientService.Verify(s => s.FlatViewSymbols, Times.Once);
         symbols.Count().ShouldBe(1);
     }
     
+    [Test]
+    public async Task TestQuery()
+    {
+        clientService.Setup(s => s.FlatViewSymbols)
+            .Returns(new SymbolCollection() { new DebugSymbol() {Name = "test01"} })
+            ;
+        
+        var symbols = await controller.QueryInstancePath("01");
+
+        clientService.Verify(s => s.FlatViewSymbols, Times.Once);
+        symbols.Count().ShouldBe(1);
+    }
 }
