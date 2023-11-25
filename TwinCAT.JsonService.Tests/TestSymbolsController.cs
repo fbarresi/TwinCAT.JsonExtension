@@ -9,6 +9,7 @@ using TwinCAT.TypeSystem;
 
 namespace TwinCAT.JsonService.Tests;
 
+[TestFixture]
 public class TestSymbolsController
 {
     private Mock<ILogger<SymbolsController>> logger;
