@@ -30,4 +30,31 @@ public class ClientServiceTests
         var clientService = new ClientService(null, null);
         clientService.ShouldNotBeNull();
     }
+    
+    [Test]
+    public void TestPropertiesAreSet()
+    {
+        var clientService = new ClientService(null, null);
+        clientService.ShouldNotBeNull();
+        clientService.Client.ShouldNotBeNull();
+        clientService.ConnectionState.ShouldNotBeNull();
+        clientService.AdsState.ShouldNotBeNull();
+        clientService.TreeViewSymbols.ShouldBeNull();
+        clientService.FlatViewSymbols.ShouldBeNull();
+    }
+    
+    [Test]
+    public void TestInitializeDoesNotThrow()
+    {
+        try
+        {
+            var clientService = new ClientService(Logger.Object, new BeckhoffClientSettings());
+            clientService.ShouldNotBeNull();
+            clientService.Initialize();
+        }
+        catch (Exception _)
+        {
+            Assert.Fail();
+        }
+    }
 }
