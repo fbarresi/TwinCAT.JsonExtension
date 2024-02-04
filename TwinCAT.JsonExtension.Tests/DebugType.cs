@@ -28,11 +28,13 @@ namespace TwinCAT.JsonExtension.Tests
         public ITypeAttributeCollection Attributes { get; }
         public string Comment { get; }
         public Type ManagedType { get; set; }
+        public IInterfaceType[] InterfaceImplementations { get; }
         public IMemberCollection Members { get; set; }
         public string BaseTypeName { get; }
-        IDataType? IStructType.BaseType { get; }
+        IDataType IInterfaceType.BaseType { get; }
         public IMemberCollection AllMembers { get; }
         public bool HasRpcMethods { get; }
+        public string[] InterfaceImplementationNames { get; }
         public DebugType BaseType { get; set; }
         public IDataType ResolveType(DataTypeResolveStrategy type)
         {
@@ -68,5 +70,6 @@ namespace TwinCAT.JsonExtension.Tests
 
         public static Type t = typeof(bool);
 
+        public IRpcMethodCollection RpcMethods { get; }
     }
 }
